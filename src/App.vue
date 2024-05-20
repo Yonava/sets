@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import 'katex/dist/katex.min.css';
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import katex from 'katex';
 
-const tex = ref(null);
+const tex = ref<HTMLDivElement | null>(null);
 
 const text = ref('')
-
-const inputActive = ref(false);
-
 const error = ref('');
 
 const fn = () => {
@@ -20,17 +17,33 @@ const fn = () => {
   }
 }
 
-document.addEventListener('keydown', (event) => {
-  if (!inputActive.value) {
+onMounted(() => {
+  if (!tex.value) {
     return;
   }
+  tex.value.addEventListener('keydown', inputKeyPressHandler);
+  tex.value.addEventListener('copy', (event) => {
+    event.preventDefault();
+    console.log('copying');
+    text.value = text.value.slice(0, -1);
+    navigator.clipboard.writeText(text.value);
+  });
+  tex.value.addEventListener('paste', (event) => {
+    event.preventDefault();
+    navigator.clipboard.readText().then((t) => {
+      text.value += t;
+    });
+  });
+});
+
+const inputKeyPressHandler = (event: KeyboardEvent) => {
+
   if (event.key === 'Backspace') {
 
     const selectedText = window.getSelection()!.toString();
 
     if (selectedText) {
       text.value = text.value.replace(selectedText, '');
-      fn();
       return;
     }
 
@@ -42,7 +55,6 @@ document.addEventListener('keydown', (event) => {
       text.value = text.value.slice(0, lastSlash - 1);
     }
 
-    fn();
     return;
   }
 
@@ -60,12 +72,14 @@ document.addEventListener('keydown', (event) => {
     text.value += event.key.toUpperCase();
   }
 
-  event.preventDefault();
   fn();
-});
+}
 
 const setInputFocus = (state: boolean) => {
-  inputActive.value = state;
+  if (!tex.value) {
+    return;
+  }
+
   if (state) {
     tex.value.classList.add('input-field');
     tex.value.classList.remove('input-field-inactive');
@@ -74,6 +88,8 @@ const setInputFocus = (state: boolean) => {
     tex.value.classList.add('input-field-inactive');
   }
 }
+
+watch(text, fn);
 </script>
 
 <template>
