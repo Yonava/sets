@@ -54,14 +54,23 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
 
   if (event.key === 'ArrowLeft') {
     console.log(text.value[cursorPosition.value - 1])
-    cursorPosition.value = Math.max(0, cursorPosition.value - 1);
-    fn();
+    const charBeingCursedOver = text.value[cursorPosition.value - 1];
+    if (charBeingCursedOver !== ' ') {
+      cursorPosition.value = Math.max(0, cursorPosition.value - 1);
+      return;
+    }
+    const lastSlash = text.value.lastIndexOf('\\');
+    if (lastSlash === -1) cursorPosition.value = 0;
+    else cursorPosition.value = lastSlash;
     return;
   }
 
   if (event.key === 'ArrowRight') {
-    cursorPosition.value = Math.min(text.value.length, cursorPosition.value + 1);
-    fn();
+    const charBeingCursedOver = text.value[cursorPosition.value];
+    if (charBeingCursedOver !== '\\') {
+      cursorPosition.value = Math.min(text.value.length, cursorPosition.value + 1);
+      return;
+    }
     return;
   }
 
@@ -135,6 +144,7 @@ const setInputFocus = (state: boolean) => {
 }
 
 watch(text, fn);
+watch(cursorPosition, fn);
 </script>
 
 <template>
@@ -148,7 +158,7 @@ watch(text, fn);
     ></div>
 
     <div
-      style="position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;"
+      style="top: 0; left: 0; z-index: 1; pointer-events: none;"
       class="input-field-inactive text-box"
       ref="cursorTex"
     ></div>
@@ -168,6 +178,9 @@ watch(text, fn);
   >
     "{{ text }}"
   </div>
+  <span>
+    {{ cursorPosition }} - "{{ text.slice(0, cursorPosition) }}"
+  </span>
 </template>
 
 <style>
