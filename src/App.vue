@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import 'katex/dist/katex.min.css';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import katex from 'katex';
 
 const tex = ref(null);
 
 const text = ref('')
+
+const inputActive = ref(false);
 
 const error = ref('');
 
@@ -19,6 +21,9 @@ const fn = () => {
 }
 
 document.addEventListener('keydown', (event) => {
+  if (!inputActive.value) {
+    return;
+  }
   if (event.key === 'Backspace') {
 
     const selectedText = window.getSelection()!.toString();
@@ -59,15 +64,24 @@ document.addEventListener('keydown', (event) => {
   fn();
 });
 
-const t = (e: KeyboardEvent) => {
-  console.log(e.key);
+const setInputFocus = (state: boolean) => {
+  inputActive.value = state;
+  if (state) {
+    tex.value.classList.add('input-field');
+    tex.value.classList.remove('input-field-inactive');
+  } else {
+    tex.value.classList.remove('input-field');
+    tex.value.classList.add('input-field-inactive');
+  }
 }
 </script>
 
 <template>
   <div
-    class="input-field"
-    @keyup="t"
+    tabindex="0"
+    class="input-field-inactive"
+    @focus="setInputFocus(true)"
+    @blur="setInputFocus(false)"
     ref="tex"
     style="border: 1px solid black; width: 500px; height: 24px; border-radius: 50px; padding: 3px; padding-left: 10px;"
   >
@@ -96,24 +110,28 @@ canvas {
 
 @keyframes cursor {
   0% {
-    opacity: 1;
+    opacity: 0;
   }
   1% {
-    opacity: 0;
+    opacity: 1;
   }
   50% {
-    opacity: 0;
+    opacity: 1;
   }
   51% {
-    opacity: 1;
+    opacity: 0;
   }
   100% {
-    opacity: 1;
+    opacity: 0;
   }
 }
 
-.cursor {
-  animation: cursor 200ms infinite;
+.input-field:focus {
+  outline: none;
+}
+
+.input-field-inactive {
+  background: rgb(233, 233, 233);
 }
 
 .input-field::after {
