@@ -21,19 +21,28 @@ onMounted(() => {
   if (!tex.value) {
     return;
   }
+
   tex.value.addEventListener('keydown', inputKeyPressHandler);
+
   tex.value.addEventListener('copy', (event) => {
     event.preventDefault();
-    console.log('copying');
     text.value = text.value.slice(0, -1);
     navigator.clipboard.writeText(text.value);
   });
-  tex.value.addEventListener('paste', (event) => {
+
+  tex.value.addEventListener('paste', async (event) => {
     event.preventDefault();
-    navigator.clipboard.readText().then((t) => {
-      text.value += t;
-    });
+    text.value = text.value.slice(0, -1);
+    const t = await navigator.clipboard.readText();
+    text.value += t;
   });
+
+  tex.value.addEventListener('cut', (event) => {
+    event.preventDefault();
+    text.value = text.value.slice(0, -1);
+    navigator.clipboard.writeText(text.value);
+  });
+
 });
 
 const inputKeyPressHandler = (event: KeyboardEvent) => {
@@ -48,12 +57,20 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     }
 
     const lastChar = text.value.slice(-1);
-    text.value = text.value.slice(0, -1);
-    // if we return a space, find the index of the last "\" and remove everything after it
+    const stringMinusLastChar = text.value.slice(0, -1);
+
+    // if the char we are removing is a space, it means we hit a latex command
     if (lastChar === ' ') {
-      const lastSlash = text.value.lastIndexOf('\\');
-      text.value = text.value.slice(0, lastSlash - 1);
+      const lastSlash = stringMinusLastChar.lastIndexOf('\\');
+      text.value = text.value.slice(0, lastSlash)
+    } else {
+      text.value = stringMinusLastChar;
     }
+
+    // if (lastChar === ' ') {
+    //   const lastSlash = text.value.lastIndexOf('\\');
+    //   text.value = text.value.slice(0, lastSlash).trim();
+    // }
 
     return;
   }
@@ -63,11 +80,11 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
   }
 
   if (event.key === 'i') {
-    text.value += ' \\cap ';
+    text.value += '\\cap ';
   } else if (event.key === 'u') {
-    text.value += ' \\cup ';
+    text.value += '\\cup ';
   } else if (event.key === 'd') {
-    text.value += ' \\Delta ';
+    text.value += '\\Delta ';
   } else {
     text.value += event.key.toUpperCase();
   }
@@ -76,9 +93,7 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
 }
 
 const setInputFocus = (state: boolean) => {
-  if (!tex.value) {
-    return;
-  }
+  if (!tex.value) return;
 
   if (state) {
     tex.value.classList.add('input-field');
@@ -108,15 +123,15 @@ watch(text, fn);
       {{ error }}
     </span>
   </div>
-  <!-- <div
+  <div
     :style="{
       width: 400 + 'px',
       height: 20 + 'px',
     }"
 
   >
-    {{ text }}
-  </div> -->
+    "{{ text }}"
+  </div>
 </template>
 
 <style>
@@ -153,7 +168,7 @@ canvas {
 .input-field::after {
   content: '';
   position: absolute;
-  width: 1px;
+  width: 10px;
   height: 20px;
   background-color: black;
   margin-left: 1px;
