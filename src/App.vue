@@ -18,13 +18,17 @@ const fn = () => {
   }
 }
 
-const isAlphaNumeric = (key: string) => {
-  return /^[a-zA-Z0-9]$/.test(key);
-}
-
 document.addEventListener('keydown', (event) => {
-  console.log(event.key)
   if (event.key === 'Backspace') {
+
+    const selectedText = window.getSelection()!.toString();
+
+    if (selectedText) {
+      text.value = text.value.replace(selectedText, '');
+      fn();
+      return;
+    }
+
     const lastChar = text.value.slice(-1);
     text.value = text.value.slice(0, -1);
     // if we return a space, find the index of the last "\" and remove everything after it
@@ -32,11 +36,12 @@ document.addEventListener('keydown', (event) => {
       const lastSlash = text.value.lastIndexOf('\\');
       text.value = text.value.slice(0, lastSlash - 1);
     }
+
     fn();
     return;
   }
 
-  if (!isAlphaNumeric(event.key)) {
+  if (event.key.length > 1) {
     return;
   }
 
@@ -44,6 +49,8 @@ document.addEventListener('keydown', (event) => {
     text.value += ' \\cap ';
   } else if (event.key === 'u') {
     text.value += ' \\cup ';
+  } else if (event.key === 'd') {
+    text.value += ' \\Delta ';
   } else {
     text.value += event.key.toUpperCase();
   }
@@ -51,20 +58,27 @@ document.addEventListener('keydown', (event) => {
   event.preventDefault();
   fn();
 });
+
+const t = (e: KeyboardEvent) => {
+  console.log(e.key);
+}
 </script>
 
 <template>
   <div
+    class="input-field"
+    @keyup="t"
     ref="tex"
-    style="border: 2px solid black; width: 400px; height: 400px;"
+    style="border: 1px solid black; width: 500px; height: 24px; border-radius: 50px; padding: 3px; padding-left: 10px;"
   >
+
   </div>
   <div>
     <span>
       {{ error }}
     </span>
   </div>
-  <div
+  <!-- <div
     :style="{
       width: 400 + 'px',
       height: 20 + 'px',
@@ -72,11 +86,43 @@ document.addEventListener('keydown', (event) => {
 
   >
     {{ text }}
-  </div>
+  </div> -->
 </template>
 
 <style>
 canvas {
   border: 5px solid black;
+}
+
+@keyframes cursor {
+  0% {
+    opacity: 1;
+  }
+  1% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  51% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.cursor {
+  animation: cursor 200ms infinite;
+}
+
+.input-field::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 20px;
+  background-color: black;
+  margin-left: 1px;
+  animation: cursor 1s infinite;
 }
 </style>
