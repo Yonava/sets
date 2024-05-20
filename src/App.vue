@@ -4,13 +4,17 @@ import { ref, onMounted, watch } from 'vue';
 import katex from 'katex';
 
 const tex = ref<HTMLDivElement | null>(null);
+const cursorTex = ref<HTMLDivElement | null>(null);
 
 const text = ref('')
 const error = ref('');
 
+const cursorPosition = ref(0);
+
 const fn = () => {
   try {
     katex.render(text.value, tex.value);
+    katex.render(text.value.slice(0, cursorPosition.value), cursorTex.value);
     error.value = '';
   } catch (e) {
     error.value = 'Invalid LaTeX';
@@ -46,6 +50,20 @@ onMounted(() => {
 });
 
 const inputKeyPressHandler = (event: KeyboardEvent) => {
+  event.preventDefault();
+
+  if (event.key === 'ArrowLeft') {
+    console.log(text.value[cursorPosition.value - 1])
+    cursorPosition.value = Math.max(0, cursorPosition.value - 1);
+    fn();
+    return;
+  }
+
+  if (event.key === 'ArrowRight') {
+    cursorPosition.value = Math.min(text.value.length, cursorPosition.value + 1);
+    fn();
+    return;
+  }
 
   if (event.key === 'Backspace') {
 
@@ -81,12 +99,16 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
 
   if (event.key === 'i') {
     text.value += '\\cap ';
+    cursorPosition.value += 5;
   } else if (event.key === 'u') {
     text.value += '\\cup ';
+    cursorPosition.value += 5;
   } else if (event.key === 'd') {
     text.value += '\\Delta ';
+    cursorPosition.value += 7;
   } else {
     text.value += event.key.toUpperCase();
+    cursorPosition.value += 1;
   }
 
   fn();
@@ -95,12 +117,20 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
 const setInputFocus = (state: boolean) => {
   if (!tex.value) return;
 
+  if (!cursorTex.value) return;
+
   if (state) {
-    tex.value.classList.add('input-field');
+    // tex.value.classList.add('input-field');
     tex.value.classList.remove('input-field-inactive');
+
+    cursorTex.value.classList.add('input-field');
+    cursorTex.value.classList.remove('input-field-inactive');
   } else {
     tex.value.classList.remove('input-field');
     tex.value.classList.add('input-field-inactive');
+
+    cursorTex.value.classList.remove('input-field');
+    cursorTex.value.classList.add('input-field-inactive');
   }
 }
 
@@ -108,16 +138,22 @@ watch(text, fn);
 </script>
 
 <template>
-  <div
-    tabindex="0"
-    class="input-field-inactive"
-    @focus="setInputFocus(true)"
-    @blur="setInputFocus(false)"
-    ref="tex"
-    style="border: 1px solid black; width: 500px; height: 24px; border-radius: 50px; padding: 3px; padding-left: 10px;"
-  >
+  <div style="position: relative">
+    <div
+      tabindex="0"
+      class="input-field-inactive text-box"
+      @focus="setInputFocus(true)"
+      @blur="setInputFocus(false)"
+      ref="tex"
+    ></div>
 
+    <div
+      style="position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;"
+      class="input-field-inactive text-box"
+      ref="cursorTex"
+    ></div>
   </div>
+
   <div>
     <span>
       {{ error }}
@@ -157,6 +193,16 @@ canvas {
   }
 }
 
+.text-box {
+  border: 1px solid black;
+  width: 500px;
+  height: 24px;
+  border-radius: 50px;
+  padding: 3px;
+  padding-left: 10px;
+  cursor: text;
+}
+
 .input-field:focus {
   outline: none;
 }
@@ -168,7 +214,7 @@ canvas {
 .input-field::after {
   content: '';
   position: absolute;
-  width: 10px;
+  width: 1px;
   height: 20px;
   background-color: black;
   margin-left: 1px;
