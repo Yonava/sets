@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import 'katex/dist/katex.min.css';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import katex from 'katex';
 
 const tex = ref<HTMLDivElement | null>(null);
@@ -11,10 +11,14 @@ const error = ref('');
 
 const cursorPosition = ref(0);
 
-const fn = () => {
+const cursorBoxText = computed(() => {
+  return text.value.slice(0, cursorPosition.value);
+});
+
+const renderTex = () => {
   try {
     katex.render(text.value, tex.value);
-    katex.render(text.value.slice(0, cursorPosition.value), cursorTex.value);
+    katex.render(cursorBoxText.value, cursorTex.value);
     error.value = '';
   } catch (e) {
     error.value = 'Invalid LaTeX';
@@ -53,13 +57,12 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
   event.preventDefault();
 
   if (event.key === 'ArrowLeft') {
-    console.log(text.value[cursorPosition.value - 1])
     const charBeingCursedOver = text.value[cursorPosition.value - 1];
     if (charBeingCursedOver !== ' ') {
       cursorPosition.value = Math.max(0, cursorPosition.value - 1);
       return;
     }
-    const lastSlash = text.value.lastIndexOf('\\');
+    const lastSlash = cursorBoxText.value.lastIndexOf('\\');
     if (lastSlash === -1) cursorPosition.value = 0;
     else cursorPosition.value = lastSlash;
     return;
@@ -70,7 +73,12 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     if (charBeingCursedOver !== '\\') {
       cursorPosition.value = Math.min(text.value.length, cursorPosition.value + 1);
       return;
+    } else {
+      const nextSpace = text.value.indexOf(' ', cursorPosition.value);
+      if (nextSpace === -1) cursorPosition.value = text.value.length;
+      else cursorPosition.value = nextSpace + 1;
     }
+
     return;
   }
 
@@ -94,11 +102,6 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
       text.value = stringMinusLastChar;
     }
 
-    // if (lastChar === ' ') {
-    //   const lastSlash = text.value.lastIndexOf('\\');
-    //   text.value = text.value.slice(0, lastSlash).trim();
-    // }
-
     return;
   }
 
@@ -117,10 +120,7 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     cursorPosition.value += 7;
   } else {
     text.value += event.key.toUpperCase();
-    cursorPosition.value += 1;
   }
-
-  fn();
 }
 
 const setInputFocus = (state: boolean) => {
@@ -129,22 +129,15 @@ const setInputFocus = (state: boolean) => {
   if (!cursorTex.value) return;
 
   if (state) {
-    // tex.value.classList.add('input-field');
+    tex.value.classList.add('input-field');
     tex.value.classList.remove('input-field-inactive');
-
-    cursorTex.value.classList.add('input-field');
-    cursorTex.value.classList.remove('input-field-inactive');
   } else {
     tex.value.classList.remove('input-field');
     tex.value.classList.add('input-field-inactive');
-
-    cursorTex.value.classList.remove('input-field');
-    cursorTex.value.classList.add('input-field-inactive');
   }
 }
 
-watch(text, fn);
-watch(cursorPosition, fn);
+watch(text, renderTex);
 </script>
 
 <template>
@@ -155,12 +148,6 @@ watch(cursorPosition, fn);
       @focus="setInputFocus(true)"
       @blur="setInputFocus(false)"
       ref="tex"
-    ></div>
-
-    <div
-      style="top: 0; left: 0; z-index: 1; pointer-events: none;"
-      class="input-field-inactive text-box"
-      ref="cursorTex"
     ></div>
   </div>
 
@@ -179,7 +166,7 @@ watch(cursorPosition, fn);
     "{{ text }}"
   </div>
   <span>
-    {{ cursorPosition }} - "{{ text.slice(0, cursorPosition) }}"
+    {{ cursorPosition }} - "{{ cursorBoxText }}"
   </span>
 </template>
 
