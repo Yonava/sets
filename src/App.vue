@@ -150,10 +150,15 @@ const output = computed(() => {
     ['A', 'B'],
     ['B'],
     ['C'],
+    ['B', 'C'],
     []
   ]);
 
-  return parser(parserExpr.value);
+  try {
+    return parser(parserExpr.value);
+  } catch (e) {
+    return 'Could Not Parse'
+  }
 });
 </script>
 
@@ -186,12 +191,10 @@ const output = computed(() => {
     {{ cursorPosition }} - "{{ cursorBoxText }}"
   </span>
   <br>
-  <span>
-    {{ parserExpr }}
-  </span>
-  <h1>
-    {{ output }}
-  </h1>
+  <br>
+  <code>
+    {{ JSON.stringify(output, null, 2) }}
+  </code>
 </template>
 
 <style>

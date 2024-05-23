@@ -1,3 +1,5 @@
+import { expressionToAST, ASTNode } from './ast'
+
 // [a] => a excluding all other sets
 // [a, b] => a intersection b excluding all other sets
 // [a, b, c] => a intersection b intersection c excluding all other sets
@@ -18,7 +20,7 @@ const setLatexToExpression = (latex: string) => {
     return setLatexAlias[match]
   })
   const removingWhitespace = replacingCommands.replace(/\s/g, '')
-  return removingWhitespace.split('').filter((char) => char !== '\\')
+  return removingWhitespace.split('').filter((char) => char !== '\\').join('')
 }
 
 const setParser = (partition: Subset[]) => {
@@ -28,9 +30,7 @@ const setParser = (partition: Subset[]) => {
   }
 
   const isEqual = (set1: Subset, set2: Subset) => {
-    const s1Str = set1.sort().join('')
-    const s2Str = set2.sort().join('')
-    return s1Str === s2Str
+    return set1.length === set2.length && set1.every((element) => set2.includes(element))
   }
 
   const union = (set1: Subset[], set2: Subset[]) => {
@@ -46,29 +46,42 @@ const setParser = (partition: Subset[]) => {
   }
 
   const difference = (set1: Subset[], set2: Subset[]) => {
-    // exclude all sets which have both set1 and set2
-    // but include all sets which have set1 but not set2
-    // or sets which have set2 but not set1
     return exclusion(union(set1, set2), intersection(set1, set2))
   }
 
-  const parse = (expression: string[]) => {
-    // const stack: string[] = []
-    const [left, mid, right] = expression
-    const set1 = getSet(left)
-    const set2 = getSet(right)
-    switch (mid) {
-      case '0':
-        return union(set1, set2)
-      case '1':
-        return intersection(set1, set2)
-      case '2':
-        return difference(set1, set2)
-      case '/':
-        return exclusion(set1, set2)
-      default:
-        return 'Invalid expression'
+  const dedupe = (sets: Subset[]) => {
+    return sets.filter((set, index) => {
+      return sets.findIndex((otherSet) => isEqual(set, otherSet)) === index
+    })
+  }
+
+  const parse = (expression: string) => {
+    const parseHelper = (node: ASTNode): Subset[] => {
+      if (node.token.type === 'OPERAND') {
+        return getSet(node.token.value)
+      }
+
+      if (!node.left || !node.right) {
+        throw new Error('Invalid expression')
+      }
+
+      const left = parseHelper(node.left)
+      const right = parseHelper(node.right)
+      switch (node.token.value) {
+        case '0':
+          return union(left, right)
+        case '1':
+          return intersection(left, right)
+        case '2':
+          return difference(left, right)
+        case '/':
+          return exclusion(left, right)
+        default:
+          throw new Error('Invalid operator')
+      }
     }
+
+    return dedupe(parseHelper(expressionToAST(expression)))
   }
 
   return parse
