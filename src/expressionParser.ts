@@ -1,5 +1,3 @@
-
-
 // [a] => a excluding all other sets
 // [a, b] => a intersection b excluding all other sets
 // [a, b, c] => a intersection b intersection c excluding all other sets
@@ -25,7 +23,36 @@ const setLatexToExpression = (latex: string) => {
 
 const setParser = (partition: Subset[]) => {
 
+  const getSet = (set: string) => {
+    return partition.filter((subset) => subset.includes(set))
+  }
+
+  const isEqual = (set1: Subset[], set2: Subset[]) => {
+    const s1Str = set1.sort().join('')
+    const s2Str = set2.sort().join('')
+    return s1Str === s2Str
+  }
+
+  const union = (set1: Subset[], set2: Subset[]) => {
+    return set1.concat(set2)
+  }
+
+  const intersection = (set1: Subset[], set2: Subset[]) => {
+    return set1.filter((element) => set2.includes(element))
+  }
+
+  const difference = (set1: Subset[], set2: Subset[]) => {
+    return set1.filter((element) => !set2.includes(element))
+  }
+
+  const exclusion = (set1: Subset[], set2: Subset[]) => {
+    return union(difference(set1, set2), difference(set2, set1))
+  }
+
   const parse = (expression: string[]) => {
+    // const stack: string[] = []
+    const [left, mid, right] = expression
+
   }
 
   return parse
