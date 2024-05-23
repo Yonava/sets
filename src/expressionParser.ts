@@ -56,6 +56,8 @@ const setParser = (partition: Subset[]) => {
   }
 
   const parse = (expression: string) => {
+    if (!expression) return []
+
     const parseHelper = (node: ASTNode): Subset[] => {
       if (node.token.type === 'OPERAND') {
         return getSet(node.token.value)
