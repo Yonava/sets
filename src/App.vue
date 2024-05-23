@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import 'katex/dist/katex.min.css';
-import { setLatexToExpression } from './expressionParser';
+import { setLatexToExpression, setParser } from './expressionParser';
 import { ref, onMounted, watch, computed } from 'vue';
 import katex from 'katex';
 
@@ -143,6 +143,18 @@ watch(text, renderTex);
 const parserExpr = computed(() => {
   return setLatexToExpression(text.value);
 });
+
+const output = computed(() => {
+  const parser = setParser([
+    ['A'],
+    ['A', 'B'],
+    ['B'],
+    ['C'],
+    []
+  ]);
+
+  return parser(parserExpr.value);
+});
 </script>
 
 <template>
@@ -173,8 +185,12 @@ const parserExpr = computed(() => {
   <span>
     {{ cursorPosition }} - "{{ cursorBoxText }}"
   </span>
-  <h1>
+  <br>
+  <span>
     {{ parserExpr }}
+  </span>
+  <h1>
+    {{ output }}
   </h1>
 </template>
 

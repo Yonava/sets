@@ -27,7 +27,7 @@ const setParser = (partition: Subset[]) => {
     return partition.filter((subset) => subset.includes(set))
   }
 
-  const isEqual = (set1: Subset[], set2: Subset[]) => {
+  const isEqual = (set1: Subset, set2: Subset) => {
     const s1Str = set1.sort().join('')
     const s2Str = set2.sort().join('')
     return s1Str === s2Str
@@ -41,18 +41,34 @@ const setParser = (partition: Subset[]) => {
     return set1.filter((element) => set2.includes(element))
   }
 
-  const difference = (set1: Subset[], set2: Subset[]) => {
+  const exclusion = (set1: Subset[], set2: Subset[]) => {
     return set1.filter((element) => !set2.includes(element))
   }
 
-  const exclusion = (set1: Subset[], set2: Subset[]) => {
-    return union(difference(set1, set2), difference(set2, set1))
+  const difference = (set1: Subset[], set2: Subset[]) => {
+    // exclude all sets which have both set1 and set2
+    // but include all sets which have set1 but not set2
+    // or sets which have set2 but not set1
+    return exclusion(union(set1, set2), intersection(set1, set2))
   }
 
   const parse = (expression: string[]) => {
     // const stack: string[] = []
     const [left, mid, right] = expression
-
+    const set1 = getSet(left)
+    const set2 = getSet(right)
+    switch (mid) {
+      case '0':
+        return union(set1, set2)
+      case '1':
+        return intersection(set1, set2)
+      case '2':
+        return difference(set1, set2)
+      case '/':
+        return exclusion(set1, set2)
+      default:
+        return 'Invalid expression'
+    }
   }
 
   return parse
