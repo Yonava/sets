@@ -93,13 +93,19 @@ const setLatexInputFocus = (state: boolean) => {
   if (state) {
     latexInput.value.classList.add('input-field');
     latexInput.value.classList.remove('input-field-inactive');
+    latexInput.value.focus();
   } else {
     latexInput.value.classList.remove('input-field');
     latexInput.value.classList.add('input-field-inactive');
   }
 }
 
-watch(latexString, renderLatexInInput);
+watch(latexString, (newStr, oldStr) => {
+  renderLatexInInput();
+  if (newStr.length > oldStr.length) {
+    setLatexInputFocus(true);
+  }
+});
 </script>
 
 <template>
@@ -149,7 +155,7 @@ watch(latexString, renderLatexInInput);
 }
 
 .input-field-inactive {
-  background: rgb(233, 233, 233);
+  /* add inactive styles */
 }
 
 .input-field::after {
