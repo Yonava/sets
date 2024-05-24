@@ -19,8 +19,18 @@ export class ASTNode {
 const shuntingYard = (tokens: Token[]): Token[] => {
   const output: Token[] = [];
   const operators: Token[] = [];
-  const precedence: Record<string, number> = { '0': 2, '1': 2, '/': 3, '2': 3 };
-  const leftAssociative: Record<string, boolean> = { '0': true, '1': true, '/': true, '2': true };
+  const precedence: Record<string, number> = {
+    '0': 2,
+    '1': 2,
+    '/': 3,
+    '2': 3
+  };
+  const leftAssociative: Record<string, boolean> = {
+    '0': true,
+    '1': true,
+    '/': true,
+    '2': true
+  };
 
   for (const token of tokens) {
     switch (token.type) {
@@ -45,7 +55,7 @@ const shuntingYard = (tokens: Token[]): Token[] => {
         while (operators.length && operators[operators.length - 1].type !== "LPAREN") {
           output.push(operators.pop()!);
         }
-        operators.pop(); // Remove the left parenthesis
+        operators.pop()
         break;
     }
   }

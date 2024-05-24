@@ -27,8 +27,19 @@ const output = computed(() => {
 
 <template>
   <div>
-    <LatexInput v-model="latexInputString" />
+    <LatexInput
+      v-model="latexInputString"
+      :transform="(c: string) => c.toUpperCase()"
+      :hotkeys="{
+        'i': '\\cap',
+        'u': '\\cup',
+        'd': '\\Delta',
+      }"
+    />
   </div>
+  <span>
+    {{ latexInputString }}
+  </span>
   <code>
     {{ JSON.stringify(output, null, 2) }}
   </code>

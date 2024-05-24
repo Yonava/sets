@@ -3,6 +3,11 @@ import { ref, watch, onMounted } from 'vue';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
+const props = defineProps<{
+  hotkeys: Record<string, string>;
+  transform: (c: string) => string;
+}>();
+
 const latexString = defineModel<string>({ required: true });
 
 const latexInput = ref<HTMLDivElement | null>(null);
@@ -65,15 +70,13 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     return;
   }
 
-  if (event.key === 'i') {
-    latexString.value += '\\cap ';
-  } else if (event.key === 'u') {
-    latexString.value += '\\cup ';
-  } else if (event.key === 'd') {
-    latexString.value += '\\Delta ';
-  } else {
-    latexString.value += event.key.toUpperCase();
+  // hotkeys tied to latex commands
+  if (props.hotkeys[event.key]) {
+    latexString.value += props.hotkeys[event.key] + ' ';
+    return;
   }
+
+  latexString.value += props.transform(event.key);
 }
 
 const renderLatexInInput = () => {
