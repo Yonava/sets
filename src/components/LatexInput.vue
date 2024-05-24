@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
 import katex from 'katex';
-import 'katex/dist/katex.min.css';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{
   hotkeys: Record<string, string>;

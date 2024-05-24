@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LatexInput from './components/LatexInput.vue';
+import LatexButton from './components/LatexButton.vue';
 import { setLatexToExpression, setParser } from './expressionParser';
 import { ref, computed } from 'vue';
 
@@ -7,10 +8,9 @@ const latexInputString = ref('');
 
 const setSpace = [
   ['A'],
-  ['A', 'B'],
   ['B'],
   ['C'],
-  ['B', 'C']
+  ['A', 'B']
 ];
 
 const output = computed(() => {
@@ -23,6 +23,12 @@ const output = computed(() => {
     return 'Could Not Parse'
   }
 });
+
+const hotkeys = {
+  'i': '\\cap',
+  'u': '\\cup',
+  'd': '\\Delta',
+};
 </script>
 
 <template>
@@ -30,16 +36,14 @@ const output = computed(() => {
     <LatexInput
       v-model="latexInputString"
       :transform="(c: string) => c.toUpperCase()"
-      :hotkeys="{
-        'i': '\\cap',
-        'u': '\\cup',
-        'd': '\\Delta',
-      }"
+      :hotkeys="hotkeys"
     />
   </div>
-  <span>
-    {{ latexInputString }}
-  </span>
+  <LatexButton
+    v-for="command in hotkeys"
+    @click="latexInputString += command + ' '"
+    :label="command"
+  />
   <code>
     {{ JSON.stringify(output, null, 2) }}
   </code>
