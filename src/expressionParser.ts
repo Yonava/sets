@@ -1,4 +1,4 @@
-import { expressionToAST, ASTNode } from './ast'
+import { expressionToAST, ASTNode, tokenize } from './ast'
 
 // [a] => a excluding all other sets
 // [a, b] => a intersection b excluding all other sets
@@ -49,6 +49,12 @@ const setParser = (partition: Subset[]) => {
     return exclusion(union(set1, set2), intersection(set1, set2))
   }
 
+  const complement = (set: Subset[]) => {
+    return partition.filter((subset) => {
+      return set.every((element) => !isEqual(subset, element))
+    })
+  }
+
   const dedupe = (sets: Subset[]) => {
     return sets.filter((set, index) => {
       return sets.findIndex((otherSet) => isEqual(set, otherSet)) === index
@@ -56,6 +62,7 @@ const setParser = (partition: Subset[]) => {
   }
 
   const parse = (expression: string) => {
+    return tokenize(expression)
     if (!expression) return []
 
     const parseHelper = (node: ASTNode): Subset[] => {

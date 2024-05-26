@@ -16,7 +16,7 @@ export class ASTNode {
 }
 
 // Shunting Yard Algorithm
-const shuntingYard = (tokens: Token[]): Token[] => {
+export const shuntingYard = (tokens: Token[]): Token[] => {
   const output: Token[] = [];
   const operators: Token[] = [];
   const precedence: Record<string, number> = {
@@ -67,7 +67,7 @@ const shuntingYard = (tokens: Token[]): Token[] => {
   return output;
 };
 
-const buildAST = (postfix: Token[]): ASTNode => {
+export const buildAST = (postfix: Token[]): ASTNode => {
   const stack: ASTNode[] = [];
 
   for (const token of postfix) {
@@ -84,13 +84,15 @@ const buildAST = (postfix: Token[]): ASTNode => {
   return stack[0];
 };
 
-const tokenize = (input: string): Token[] => {
+export const tokenize = (input: string): Token[] => {
   const tokens: Token[] = [];
-  const regex = /\s*([a-zA-Z]+|[0|1|2|/]|[()])\s*/g;
+  const regex = /\s*(\^c|[a-zA-Z]+|[0|1|2|/]|[()])\s*/g;
   let match;
 
   while ((match = regex.exec(input)) !== null) {
-    if (/[a-zA-Z]+/.test(match[1])) {
+    if (match[1] === '^c') {
+      tokens.push({ type: 'OPERATOR', value: 'c' });
+    } else if (/[a-zA-Z]+/.test(match[1])) {
       tokens.push({ type: 'OPERAND', value: match[1] });
     } else if (/[0|1|2|/]/.test(match[1])) {
       tokens.push({ type: 'OPERATOR', value: match[1] });
