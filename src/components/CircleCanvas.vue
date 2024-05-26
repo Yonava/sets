@@ -103,8 +103,12 @@ const startDrag = (event: MouseEvent) => {
       }
     })
 
-    circles.push(circles.splice(currentCircleIndex.value, 1)[0])
-    currentCircleIndex.value = circles.length - 1
+    // larger circles on bottom
+    circles.sort((a, b) => b.radius - a.radius)
+
+    // this is for last licked goes on top
+    // circles.push(circles.splice(currentCircleIndex.value, 1)[0])
+    // currentCircleIndex.value = circles.length - 1
     drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   } else {
     startSelection(event)
