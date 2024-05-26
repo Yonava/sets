@@ -10,7 +10,6 @@
       @mouseleave="endDrag"
       @dblclick="createCircle"
       @click.left="handleCanvasClick"
-      @click.right.prevent="deleteCircle"
     ></canvas>
   </div>
 </template>
@@ -192,11 +191,10 @@ const handleCanvasClick = (event: MouseEvent) => {
 }
 
 const deleteCircle = () => {
-  const selectedCircleIndex = circles.findIndex(circle => circle.selected)
-  if (selectedCircleIndex !== -1) {
-    circles.splice(selectedCircleIndex, 1)
-    drawCircles(convertNameListToIdList(props.sectionsToHighlight))
+  for (let i = circles.length - 1; i >= 0; i--) {
+    if (circles[i].selected) circles.splice(i, 1);
   }
+  drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 }
 
 const startSelection = (event: MouseEvent) => {
@@ -241,8 +239,23 @@ const endSelection = () => {
   isSelecting.value = false
 }
 
+const eventListeners = [
+  {
+    keyCode: 'Delete',
+    action: () => deleteCircle()
+  },
+]
+
+const handleKeyPress = (event: KeyboardEvent) => {
+  eventListeners.forEach(listener => {
+    if (event.code === listener.keyCode) {
+      listener.action()
+    }
+  })
+}
+
 onMounted(() => {
-  drawCircles(convertNameListToIdList(props.sectionsToHighlight))
+  window.addEventListener("keydown", handleKeyPress)
 })
 </script>
 
