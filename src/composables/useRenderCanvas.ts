@@ -2,6 +2,8 @@ import type { Ref } from 'vue'
 import type { Overlap, Circle } from '@/types/types'
 import { isOverlapping } from '@/utils/circleUtils'
 import { convertFromIdToName } from '@/utils/idToNameUtils'
+import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColor } from '../utils/constants'
+
 
 const useRenderCanvas = (
   canvas: Ref<HTMLCanvasElement | null>,
@@ -9,8 +11,6 @@ const useRenderCanvas = (
   currentOverlapId: Ref<number>,
   selectedOverlap: Ref<Overlap | null>,
 ) => {
-
-  const selectColor = 'rgba(0, 255, 0, 1)'
 
   const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.beginPath()
@@ -23,13 +23,13 @@ const useRenderCanvas = (
     ctx.beginPath()
     ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
     ctx.lineWidth = 3
-    ctx.strokeStyle = circle.selected ? 'white' : 'grey'
+    ctx.strokeStyle = circle.selected ? circleSelectedColor : circleOutlineColor
     ctx.stroke()
   }
 
   const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.font = '15px Arial'
-    ctx.fillStyle = 'white'
+    ctx.fillStyle = circle.selected ? circleSelectedColor : circleOutlineColor
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle'
     ctx.fillText(convertFromIdToName(circle.id), circle.x, circle.y)
@@ -64,14 +64,14 @@ const useRenderCanvas = (
 
 
   const renderSelectedSections = (highlightIds: number[][]) => {
-    circles.forEach(circle => circle.color = '#111111')
+    circles.forEach(circle => circle.color = backgroundColor)
 
     highlightIds.forEach(ids => {
       if (ids.length === 1) {
         const id = ids[0]
         circles.forEach(circle => {
           if (circle.id === id) {
-            circle.color = selectColor
+            circle.color = highlightColor
           }
         })
       } else {
@@ -79,7 +79,7 @@ const useRenderCanvas = (
           const overlapIds = overlap.circles.map(circle => circle.id).sort((a, b) => a - b)
           const sortedIds = [...ids].sort((a, b) => a - b)
           if (JSON.stringify(overlapIds) === JSON.stringify(sortedIds)) {
-            overlap.color = selectColor
+            overlap.color = highlightColor
           }
         })
       }
@@ -88,7 +88,7 @@ const useRenderCanvas = (
 
   const findOverlaps = (overlapGroup: Circle[], startIndex: number) => {
     if (overlapGroup.length > 1) {
-      const color = '#111111'
+      const color = backgroundColor
       overlaps.push({
         circles: [...overlapGroup],
         color,
@@ -132,8 +132,6 @@ const useRenderCanvas = (
   }
 
   return {
-    selectColor,
-
     drawCircles,
   }
 }
