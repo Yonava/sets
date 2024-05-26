@@ -7,7 +7,7 @@ import { ref, computed } from 'vue';
 
 const latexInputString = ref('');
 
-const setSpace = ref([['A'], ['B'], ['A', 'B'], ['S']])
+const setSpace = ref([])
 
 const output = computed(() => {
   const expr = setLatexToExpression(latexInputString.value);
@@ -29,22 +29,18 @@ const hotkeys = {
 </script>
 
 <template>
-  <!-- <div style="position: absolute; left: 0; top: 0;">
+  <div style="position: absolute; left: 0; top: 0;">
     <CircleCanvas
       v-model="setSpace"
       :sections-to-highlight="output"
     />
-  </div> -->
+  </div>
   <div style="position: absolute; top: 0; left: 0; z-index: 2; background: white;">
     <LatexInput
       v-model="latexInputString"
       :transform="(c: string) => ' ' + c.toUpperCase()"
       :hotkeys="hotkeys"
     />
-  </div>
-
-  <div style="margin-top: 50px;">
-    {{ output }}
   </div>
 
   <!-- <LatexButton

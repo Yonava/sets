@@ -19,18 +19,6 @@ export class ASTNode {
 export const shuntingYard = (tokens: Token[]): Token[] => {
   const output: Token[] = [];
   const operators: Token[] = [];
-  const precedence: Record<string, number> = {
-    '0': 2,
-    '1': 2,
-    '/': 3,
-    '2': 3
-  };
-  const leftAssociative: Record<string, boolean> = {
-    '0': true,
-    '1': true,
-    '/': true,
-    '2': true
-  };
 
   for (const token of tokens) {
     switch (token.type) {
@@ -38,12 +26,12 @@ export const shuntingYard = (tokens: Token[]): Token[] => {
         output.push(token);
         break;
       case "OPERATOR":
-        while (
-          operators.length &&
-          operators[operators.length - 1].type === "OPERATOR" &&
-          ((leftAssociative[token.value] && precedence[token.value] <= precedence[operators[operators.length - 1].value]) ||
-            (!leftAssociative[token.value] && precedence[token.value] < precedence[operators[operators.length - 1].value]))
-        ) {
+        // special case for complement operator
+        if (token.value === 'c') {
+          operators.push(token);
+          break;
+        }
+        while (operators.length && operators[operators.length - 1].type === "OPERATOR") {
           output.push(operators.pop()!);
         }
         operators.push(token);
@@ -75,8 +63,12 @@ export const buildAST = (postfix: Token[]): ASTNode => {
       stack.push(new ASTNode(token));
     } else if (token.type === "OPERATOR") {
       const node = new ASTNode(token);
-      node.right = stack.pop();
-      node.left = stack.pop();
+      if (token.value === 'c') {
+        node.left = stack.pop();
+      } else {
+        node.right = stack.pop();
+        node.left = stack.pop();
+      }
       stack.push(node);
     }
   }

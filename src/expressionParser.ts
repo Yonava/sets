@@ -62,12 +62,19 @@ const setParser = (partition: Subset[]) => {
   }
 
   const parse = (expression: string) => {
-    return tokenize(expression)
     if (!expression) return []
 
     const parseHelper = (node: ASTNode): Subset[] => {
       if (node.token.type === 'OPERAND') {
         return getSet(node.token.value)
+      }
+
+      if (node.token.type === 'OPERATOR' && node.token.value === 'c') {
+        if (!node.left) {
+          throw new Error('Invalid expression')
+        }
+
+        return complement(parseHelper(node.left))
       }
 
       if (!node.left || !node.right) {
@@ -90,7 +97,8 @@ const setParser = (partition: Subset[]) => {
       }
     }
 
-    return dedupe(parseHelper(expressionToAST(expression)))
+    const ast = expressionToAST(expression)
+    return dedupe(parseHelper(ast))
   }
 
   return parse

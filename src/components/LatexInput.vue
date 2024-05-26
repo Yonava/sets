@@ -118,9 +118,6 @@ watch(latexString, (newStr, oldStr) => {
     @blur="setLatexInputFocus(false)"
     ref="latexInput"
   ></div>
-  <span>
-    "{{ latexString.replace(/\s/g, 'Space') }}"
-  </span>
 </template>
 
 <style scoped>
