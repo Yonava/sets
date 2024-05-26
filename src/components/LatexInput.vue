@@ -55,12 +55,14 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     const stringMinusLastChar = latexString.value.slice(0, -1);
 
     // if the char we are removing is a space, it means we hit a latex command
-    if (lastChar === ' ') {
-      const lastSlash = stringMinusLastChar.lastIndexOf('\\');
-      latexString.value = latexString.value.slice(0, lastSlash)
-    } else {
-      latexString.value = stringMinusLastChar;
-    }
+
+    const specialChars = ['\\', '^', ' ', '_'];
+    const indexToSlice = specialChars.reduce((acc, char) => {
+      const index = stringMinusLastChar.lastIndexOf(char);
+      return index > acc ? index : acc;
+    }, 0);
+
+    latexString.value = stringMinusLastChar.slice(0, indexToSlice);
 
     return;
   }
@@ -71,7 +73,7 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
 
   // hotkeys tied to latex commands
   if (props.hotkeys[event.key]) {
-    latexString.value += props.hotkeys[event.key] + ' ';
+    latexString.value += props.hotkeys[event.key];
     return;
   }
 
@@ -116,9 +118,6 @@ watch(latexString, (newStr, oldStr) => {
     @blur="setLatexInputFocus(false)"
     ref="latexInput"
   ></div>
-  <span>
-    {{ renderError }}
-  </span>
 </template>
 
 <style scoped>

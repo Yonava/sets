@@ -1,4 +1,4 @@
-import { expressionToAST, ASTNode } from './ast'
+import { expressionToAST, ASTNode, tokenize } from './ast'
 
 // [a] => a excluding all other sets
 // [a, b] => a intersection b excluding all other sets
@@ -49,6 +49,12 @@ const setParser = (partition: Subset[]) => {
     return exclusion(union(set1, set2), intersection(set1, set2))
   }
 
+  const complement = (set: Subset[]) => {
+    return partition.filter((subset) => {
+      return set.every((element) => !isEqual(subset, element))
+    })
+  }
+
   const dedupe = (sets: Subset[]) => {
     return sets.filter((set, index) => {
       return sets.findIndex((otherSet) => isEqual(set, otherSet)) === index
@@ -61,6 +67,14 @@ const setParser = (partition: Subset[]) => {
     const parseHelper = (node: ASTNode): Subset[] => {
       if (node.token.type === 'OPERAND') {
         return getSet(node.token.value)
+      }
+
+      if (node.token.type === 'OPERATOR' && node.token.value === 'c') {
+        if (!node.left) {
+          throw new Error('Invalid expression')
+        }
+
+        return complement(parseHelper(node.left))
       }
 
       if (!node.left || !node.right) {
@@ -83,7 +97,8 @@ const setParser = (partition: Subset[]) => {
       }
     }
 
-    return dedupe(parseHelper(expressionToAST(expression)))
+    const ast = expressionToAST(expression)
+    return dedupe(parseHelper(ast))
   }
 
   return parse

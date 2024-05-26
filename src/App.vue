@@ -21,9 +21,10 @@ const output = computed(() => {
 });
 
 const hotkeys = {
-  'i': '\\cap',
-  'u': '\\cup',
-  'd': '\\Delta',
+  'i': '\\cap ',
+  'u': '\\cup ',
+  'd': '\\Delta ',
+  'c': '^c',
 };
 </script>
 
@@ -37,13 +38,14 @@ const hotkeys = {
   <div style="position: absolute; top: 0; left: 0; z-index: 2; background: white;">
     <LatexInput
       v-model="latexInputString"
-      :transform="(c: string) => c.toUpperCase()"
+      :transform="(c: string) => ' ' + c.toUpperCase()"
       :hotkeys="hotkeys"
     />
   </div>
-  <LatexButton
+
+  <!-- <LatexButton
     v-for="command in hotkeys"
     @click="latexInputString += command + ' '"
     :label="command"
-  />
+  /> -->
 </template>
