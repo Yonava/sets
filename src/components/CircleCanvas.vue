@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, reactive, watch } from 'vue'
 
 import type { Circle, Overlap } from '../types/types'
 import useRenderCanvas from '../composables/useRenderCanvas'
@@ -263,8 +263,18 @@ const handleKeyPress = (event: KeyboardEvent) => {
   })
 }
 
+const handleClickOutside = (event: MouseEvent) => {
+  if (canvas.value && !canvas.value.contains(event.target as Node)) circles.forEach(circle => circle.selected = false)
+};
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', () => {})
+  window.removeEventListener('click', handleClickOutside)
+})
 onMounted(() => {
   window.addEventListener('keydown', handleKeyPress)
+  window.addEventListener('click', handleClickOutside)
+
 })
 </script>
 
