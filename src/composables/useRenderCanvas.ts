@@ -21,7 +21,7 @@ const useRenderCanvas = (
   const drawCircleOutline = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.beginPath()
     ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
-    ctx.lineWidth = 5
+    ctx.lineWidth = 3
     ctx.strokeStyle = circle.selected ? 'white' : 'grey'
     ctx.stroke()
   }

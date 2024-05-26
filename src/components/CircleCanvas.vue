@@ -1,14 +1,14 @@
 <template>
   <div>
-    <canvas 
-      ref="canvas" 
-      :width="width" 
-      :height="height" 
-      @mousedown="startDrag" 
-      @mousemove="drag" 
+    <canvas
+      ref="canvas"
+      :width="width"
+      :height="height"
+      @mousedown="startDrag"
+      @mousemove="drag"
       @mouseup="endDrag"
-      @mouseleave="endDrag" 
-      @dblclick="createCircle" 
+      @mouseleave="endDrag"
+      @dblclick="createCircle"
       @click.left="handleCanvasClick"
       @click.right.prevent="deleteCircle"
     ></canvas>
@@ -31,8 +31,8 @@ const props = defineProps<{
   sectionsToHighlight: string[][],
 }>()
 
-const width = window.innerWidth - 30
-const height = window.innerHeight - 30
+const width = window.innerWidth
+const height = window.innerHeight
 
 const currentCircleId = ref(1)
 const circlesSelectedByDrag = ref(false)
@@ -244,7 +244,6 @@ onMounted(() => {
 
 <style scoped>
 canvas {
-  border: 1px solid black;
   background: #111111;
 }
 </style>

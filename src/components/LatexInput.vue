@@ -144,10 +144,10 @@ watch(latexString, (newStr, oldStr) => {
   border: 1px solid black;
   width: 500px;
   height: 24px;
-  border-radius: 50px;
   padding: 3px;
   padding-left: 10px;
   cursor: text;
+  background: white;
 }
 
 .input-field:focus {

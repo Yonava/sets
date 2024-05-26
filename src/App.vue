@@ -29,12 +29,12 @@ const hotkeys = {
 
 <template>
   <div style="position: absolute; left: 0; top: 0;">
-    <CircleCanvas 
+    <CircleCanvas
       v-model="setSpace"
       :sections-to-highlight="output"
     />
   </div>
-  <div>
+  <div style="position: absolute; top: 0; left: 0; z-index: 2; background: white;">
     <LatexInput
       v-model="latexInputString"
       :transform="(c: string) => c.toUpperCase()"
