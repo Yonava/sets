@@ -248,12 +248,17 @@ const eventListeners = [
     keyCode: 'Backspace',
     action: () => deleteCircle()
   },
+  {
+    keyCode: 'Escape',
+    action: () => circles.forEach(circle => circle.selected = false)
+  }
 ]
 
 const handleKeyPress = (event: KeyboardEvent) => {
   eventListeners.forEach(listener => {
     if (event.code === listener.keyCode) {
       listener.action()
+      drawCircles(convertNameListToIdList(props.sectionsToHighlight))
     }
   })
 }
