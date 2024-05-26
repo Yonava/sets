@@ -49,11 +49,16 @@ const selectedOverlap = ref<Overlap | null>(null)
 
 const circles = reactive<Circle[]>([])
 
+const highlightColor = 'rgba(0, 255, 0, 1)'
+
+const canvasColor = ref<'#111111' | typeof highlightColor>('#111111')
+
 const getAllSelectablePieces = useGetAllSelectablePieces()
 
 const { drawCircles } = useRenderCanvas(canvas, circles, overlaps, currentOverlapId, selectedOverlap)
 
 const watchAndRerenderProps = watch(props, () => {
+  canvasColor.value = props.sectionsToHighlight.some(arr => JSON.stringify(arr) === JSON.stringify(["S"])) ? highlightColor : '#111111'
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 })
@@ -261,6 +266,6 @@ onMounted(() => {
 
 <style scoped>
 canvas {
-  background: #111111;
+  background: v-bind(canvasColor);
 }
 </style>

@@ -25,6 +25,8 @@ const useGetAllSelectablePieces = () => {
       selectablePieces.push(convertIdListToNameList(overlapIds))
     })
 
+    selectablePieces.push(['S'])
+
     memoizedResult = selectablePieces
     return selectablePieces
   }
