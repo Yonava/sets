@@ -22,6 +22,7 @@ import useRenderCanvas from '../composables/useRenderCanvas'
 import { isInsideCircle, isOnEdge } from '../utils/circleUtils'
 import { convertNameListToIdList } from '../utils/idToNameUtils'
 import useGetAllSelectablePieces from '../composables/useGetAllSelectablePieces'
+import { highlightColor, backgroundColor } from '../utils/constants'
 
 
 const allSections = defineModel<string[][]>()
@@ -49,16 +50,14 @@ const selectedOverlap = ref<Overlap | null>(null)
 
 const circles = reactive<Circle[]>([])
 
-const highlightColor = 'rgba(0, 255, 0, 1)'
-
-const canvasColor = ref<'#111111' | typeof highlightColor>('#111111')
+const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgroundColor)
 
 const getAllSelectablePieces = useGetAllSelectablePieces()
 
 const { drawCircles } = useRenderCanvas(canvas, circles, overlaps, currentOverlapId, selectedOverlap)
 
 const watchAndRerenderProps = watch(props, () => {
-  canvasColor.value = props.sectionsToHighlight.some(arr => JSON.stringify(arr) === JSON.stringify(["S"])) ? highlightColor : '#111111'
+  canvasColor.value = props.sectionsToHighlight.some(arr => JSON.stringify(arr) === JSON.stringify(['S'])) ? highlightColor : backgroundColor
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 })
@@ -135,7 +134,7 @@ const drag = (event: MouseEvent) => {
       const circle = circles[currentCircleIndex.value]
       const dx = x - circle.x
       const dy = y - circle.y
-      circle.radius = Math.max(10, Math.sqrt(dx * dx + dy * dy))
+      circle.radius = Math.max(30, Math.sqrt(dx * dx + dy * dy))
     }
 
     drawCircles(convertNameListToIdList(props.sectionsToHighlight))
@@ -159,7 +158,7 @@ const createCircle = (event: MouseEvent) => {
     y,
     radius: 70,
     selected: true,
-    color: '#111111',
+    color: backgroundColor,
     offsetX: 0,
     offsetY: 0,
   })
