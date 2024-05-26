@@ -50,6 +50,9 @@ const selectedOverlap = ref<Overlap | null>(null)
 
 const circles = reactive<Circle[]>([])
 
+type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize'
+const cursorStyle = ref<CursorStyle>('auto')
+
 const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgroundColor)
 
 const getAllSelectablePieces = useGetAllSelectablePieces()
@@ -61,6 +64,12 @@ const watchAndRerenderProps = watch(props, () => {
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 })
+
+const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
+  if (circles.findIndex(circle => isOnEdge(mouseX, mouseY, circle)) !== -1) return 'ew-resize'
+  if (circles.findIndex(circle => isInsideCircle(mouseX, mouseY, circle)) !== -1) return 'grab'
+  return 'auto'
+}
 
 const getMousePos = (event: MouseEvent) => {
 
@@ -89,8 +98,10 @@ const startDrag = (event: MouseEvent) => {
     const circle = circles[currentCircleIndex.value]
     if (isOnEdge(x, y, circle)) {
       resizing.value = true
+      cursorStyle.value = 'ew-resize'
     } else {
       dragging.value = true
+      cursorStyle.value = 'grabbing'
     }
 
     const selectedCirclesCount = circles.filter(c => c.selected).length
@@ -119,9 +130,10 @@ const startDrag = (event: MouseEvent) => {
 }
 
 const drag = (event: MouseEvent) => {
+  const { x, y } = getMousePos(event)
+
   allSections.value = getAllSelectablePieces(circles, overlaps)
   if ((dragging.value || resizing.value) && currentCircleIndex.value !== null) {
-    const { x, y } = getMousePos(event)
 
     if (dragging.value) {
       circles.forEach(c => {
@@ -140,12 +152,14 @@ const drag = (event: MouseEvent) => {
     drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   } else {
     drawSelection(event)
+    if (!isSelecting.value) cursorStyle.value = updateCursorStyle(x, y)
   }
 }
 
 const endDrag = () => {
   dragging.value = false
   resizing.value = false
+  cursorStyle.value = 'auto'
   currentCircleIndex.value = null
   endSelection()
 }
@@ -281,5 +295,6 @@ onMounted(() => {
 <style scoped>
 canvas {
   background: v-bind(canvasColor);
+  cursor: v-bind(cursorStyle);
 }
 </style>
