@@ -51,7 +51,7 @@ const useRenderCanvas = (
 
 
   const renderSelectedSections = (highlightIds: number[][]) => {
-    circles.forEach(circle => circle.color = 'rgba(0, 0, 0, 0)')
+    circles.forEach(circle => circle.color = '#111111')
 
     highlightIds.forEach(ids => {
       if (ids.length === 1) {
@@ -75,7 +75,7 @@ const useRenderCanvas = (
 
   const findOverlaps = (overlapGroup: Circle[], startIndex: number) => {
     if (overlapGroup.length > 1) {
-      const color = 'rgba(0, 0, 0, 1)'
+      const color = '#111111'
       overlaps.push({
         circles: [...overlapGroup],
         color,

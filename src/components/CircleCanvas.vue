@@ -151,7 +151,7 @@ const createCircle = (event: MouseEvent) => {
     y,
     radius: 70,
     selected: true,
-    color: 'rgba(0, 0, 0, 1)',
+    color: '#111111',
     offsetX: 0,
     offsetY: 0,
   })
