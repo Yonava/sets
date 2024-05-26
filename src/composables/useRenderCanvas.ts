@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 import type { Overlap, Circle } from '@/types/types'
 import { isOverlapping } from '@/utils/circleUtils'
 import { convertFromIdToName } from '@/utils/idToNameUtils'
-import { highlightColor, backgroundColor } from '../utils/constants'
+import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColor } from '../utils/constants'
 
 
 const useRenderCanvas = (
@@ -23,13 +23,13 @@ const useRenderCanvas = (
     ctx.beginPath()
     ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
     ctx.lineWidth = 3
-    ctx.strokeStyle = circle.selected ? 'white' : 'grey'
+    ctx.strokeStyle = circle.selected ? circleSelectedColor : circleOutlineColor
     ctx.stroke()
   }
 
   const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.font = '15px Arial'
-    ctx.fillStyle = 'white'
+    ctx.fillStyle = circle.selected ? circleSelectedColor : circleOutlineColor
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle'
     ctx.fillText(convertFromIdToName(circle.id), circle.x, circle.y)
