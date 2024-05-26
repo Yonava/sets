@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
-import type { Overlap, Circle } from '../types/types'
-import { isOverlapping } from '../utils/circleUtils'
+import type { Overlap, Circle } from '@/types/types'
+import { isOverlapping } from '@/utils/circleUtils'
+import { convertFromIdToName } from '@/utils/idToNameUtils'
 
 const useRenderCanvas = (
   canvas: Ref<HTMLCanvasElement | null>,
@@ -26,13 +27,25 @@ const useRenderCanvas = (
     ctx.stroke()
   }
 
+  const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
+    ctx.font = '15px Arial'
+    ctx.fillStyle = 'white'
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle'
+    ctx.fillText(convertFromIdToName(circle.id), circle.x, circle.y)
+    ctx.stroke()
+  }
+
   const drawCircles = (selectedSections: number[][]) => {
     if (!canvas.value) return
     const ctx = canvas.value.getContext('2d')!
     ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
     circles.forEach(circle => drawCircleBackground(ctx, circle))
     highlightOverlappingAreas(ctx, selectedSections)
-    circles.forEach(circle => drawCircleOutline(ctx, circle))
+    circles.forEach(circle => {
+      drawCircleOutline(ctx, circle)
+      drawCircleName(ctx, circle)
+    })
   }
 
   const drawOverlappingAreas = (ctx: CanvasRenderingContext2D, overlap: Overlap) => {

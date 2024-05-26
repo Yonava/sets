@@ -10,7 +10,7 @@
       @mouseleave="endDrag"
       @dblclick="createCircle"
       @click.left="handleCanvasClick"
-    ></canvas>
+    >Sorry, your browser does not support canvas.</canvas>
   </div>
 </template>
 
@@ -241,7 +241,7 @@ const endSelection = () => {
 
 const eventListeners = [
   {
-    keyCode: 'Delete',
+    keyCode: 'Backspace',
     action: () => deleteCircle()
   },
 ]
@@ -255,7 +255,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 }
 
 onMounted(() => {
-  window.addEventListener("keydown", handleKeyPress)
+  window.addEventListener('keydown', handleKeyPress)
 })
 </script>
 
