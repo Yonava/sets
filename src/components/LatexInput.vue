@@ -4,13 +4,12 @@ import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{
   hotkeys: Record<string, string>;
-  transform: (c: string) => string;
+  transform?: (c: string) => string;
 }>();
 
 const latexString = defineModel<string>({ required: true });
 
 const latexInput = ref<HTMLDivElement | null>(null);
-const renderError = ref('');
 
 onMounted(() => {
   if (!latexInput.value) return;
@@ -36,6 +35,7 @@ onMounted(() => {
     navigator.clipboard.writeText(latexString.value);
   });
 
+  renderLatexInInput(latexString.value, '');
 });
 
 
@@ -51,18 +51,13 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
       return;
     }
 
-    const lastChar = latexString.value.slice(-1);
-    const stringMinusLastChar = latexString.value.slice(0, -1);
-
-    // if the char we are removing is a space, it means we hit a latex command
-
     const specialChars = ['\\', '^', ' ', '_'];
     const indexToSlice = specialChars.reduce((acc, char) => {
-      const index = stringMinusLastChar.lastIndexOf(char);
+      const index = latexString.value.slice(0, -1).lastIndexOf(char);
       return index > acc ? index : acc;
     }, 0);
 
-    latexString.value = stringMinusLastChar.slice(0, indexToSlice);
+    latexString.value = latexString.value.slice(0, indexToSlice);
 
     return;
   }
@@ -71,21 +66,20 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     return;
   }
 
-  // hotkeys tied to latex commands
   if (props.hotkeys[event.key]) {
     latexString.value += props.hotkeys[event.key];
     return;
   }
 
-  latexString.value += props.transform(event.key);
+  latexString.value += props?.transform(event.key) || event.key;
 }
 
-const renderLatexInInput = () => {
+const renderLatexInInput = (newStr: string, oldStr: string) => {
   try {
-    katex.render(latexString.value, latexInput.value);
-    renderError.value = '';
+    katex.render(newStr, latexInput.value);
   } catch (e) {
-    renderError.value = 'Invalid LaTeX';
+    latexString.value = oldStr;
+    console.warn(e);
   }
 }
 
@@ -103,7 +97,7 @@ const setLatexInputFocus = (state: boolean) => {
 }
 
 watch(latexString, (newStr, oldStr) => {
-  renderLatexInInput();
+  renderLatexInInput(newStr, oldStr);
   if (newStr.length > oldStr.length) {
     setLatexInputFocus(true);
   }
