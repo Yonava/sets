@@ -1,10 +1,17 @@
 import { type Ref, unref } from 'vue'
 
-const alphabet = 'abcdefghijklmnopqrtuvwxyz' // reserved keys: 'S'
+const alphabet = 'abcdefghijklmnpqrtuvwxyz' // reserved keys: 'S'; 'O'
 
 export const convertFromNameToId = (circleName: string | Ref<string>) => {
   const name = unref(circleName).toLocaleLowerCase()
-  return alphabet.split('').findIndex(letter => letter === name) + 1 // id starts at 1
+  const base = alphabet.length
+
+  let id = 0
+  for (let i = 0; i < name.length; i++) {
+    id = id * base + (alphabet.indexOf(name[i]) + 1)
+  }
+  console.log(id)
+  return id
 }
 
 export const convertNameListToIdList = (nameList: string[][] | Ref<string[][]>) => {
@@ -14,8 +21,18 @@ export const convertNameListToIdList = (nameList: string[][] | Ref<string[][]>) 
 
 export const convertFromIdToName = (circleId: number | Ref<number>) => {
   const id = unref(circleId)
-  if (id < 26) return alphabet.split('')[id - 1].toLocaleUpperCase()
-  else return 'No More Letters'
+  const base = alphabet.length
+
+  let result = ''
+  let currentId = id
+
+  while (currentId > 0) {
+    currentId--
+    result = alphabet[currentId % base] + result
+    currentId = Math.floor(currentId / base)
+  }
+
+  return result.toLocaleUpperCase()
 }
 
 export const convertIdListToNameList = (idList: number[] | Ref<number[]>) => {
