@@ -24,6 +24,7 @@ const hotkeys = {
   'i': '\\cap',
   'u': '\\cup',
   'd': '\\Delta',
+  'c': '^c',
 };
 </script>
 

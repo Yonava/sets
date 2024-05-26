@@ -57,7 +57,11 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
     // if the char we are removing is a space, it means we hit a latex command
     if (lastChar === ' ') {
       const lastSlash = stringMinusLastChar.lastIndexOf('\\');
-      latexString.value = latexString.value.slice(0, lastSlash)
+      const lastCarrot = stringMinusLastChar.lastIndexOf('^');
+      const lastSpace = stringMinusLastChar.lastIndexOf(' ');
+      const lastUnderscore = stringMinusLastChar.lastIndexOf('_');
+      const indexToSlice = Math.max(lastSlash, lastCarrot, lastSpace, lastUnderscore);
+      latexString.value = stringMinusLastChar.slice(0, indexToSlice);
     } else {
       latexString.value = stringMinusLastChar;
     }
@@ -117,7 +121,7 @@ watch(latexString, (newStr, oldStr) => {
     ref="latexInput"
   ></div>
   <span>
-    {{ renderError }}
+    "{{ latexString.replace(/\s/g, 'Space') }}"
   </span>
 </template>
 
