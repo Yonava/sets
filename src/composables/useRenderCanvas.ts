@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 import type { Overlap, Circle } from '@/types/types'
 import { isOverlapping } from '@/utils/circleUtils'
 import { convertFromIdToName } from '@/utils/idToNameUtils'
-import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColor } from '../utils/constants'
+import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColor, showCircleOutlines, showCircleText } from '../utils/constants'
 
 
 const useRenderCanvas = (
@@ -43,8 +43,8 @@ const useRenderCanvas = (
     circles.forEach(circle => drawCircleBackground(ctx, circle))
     highlightOverlappingAreas(ctx, selectedSections)
     circles.forEach(circle => {
-      drawCircleOutline(ctx, circle)
-      drawCircleName(ctx, circle)
+      if (showCircleOutlines) drawCircleOutline(ctx, circle)
+      if (showCircleText) drawCircleName(ctx, circle)
     })
   }
 

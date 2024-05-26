@@ -50,8 +50,6 @@ const selectedOverlap = ref<Overlap | null>(null)
 
 const circles = reactive<Circle[]>([])
 
-type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize'
-const cursorStyle = ref<CursorStyle>('auto')
 
 const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgroundColor)
 
@@ -64,6 +62,10 @@ const watchAndRerenderProps = watch(props, () => {
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 })
+
+type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize'
+
+const cursorStyle = ref<CursorStyle>('auto')
 
 const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
   if (circles.findIndex(circle => isOnEdge(mouseX, mouseY, circle)) !== -1) return 'ew-resize'
