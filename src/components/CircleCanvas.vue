@@ -68,8 +68,10 @@ type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize'
 const cursorStyle = ref<CursorStyle>('auto')
 
 const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
-  if (circles.findIndex(circle => isOnEdge(mouseX, mouseY, circle)) !== -1) return 'ew-resize'
-  if (circles.findIndex(circle => isInsideCircle(mouseX, mouseY, circle)) !== -1) return 'grab'
+  for (let i = circles.length - 1; i >= 0; i--) {
+    if (isOnEdge(mouseX, mouseY, circles[i])) return 'ew-resize'
+    if (isInsideCircle(mouseX, mouseY, circles[i])) return 'grab' 
+  }
   return 'auto'
 }
 
@@ -125,7 +127,6 @@ const startDrag = (event: MouseEvent) => {
     // this is for last licked goes on top
     // circles.push(circles.splice(currentCircleIndex.value, 1)[0])
     // currentCircleIndex.value = circles.length - 1
-    drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   } else {
     startSelection(event)
   }
