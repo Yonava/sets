@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import katex from 'katex';
 import { ref, watch, onMounted } from 'vue';
+import { backspace } from '@/utils/latexInputBackspace';
 
 const props = defineProps<{
   hotkeys: Record<string, string>;
@@ -43,28 +44,7 @@ const inputKeyPressHandler = (event: KeyboardEvent) => {
   event.preventDefault();
 
   if (event.key === 'Backspace') {
-
-    const selectedText = window.getSelection()!.toString();
-
-    if (selectedText) {
-      latexString.value = latexString.value.replace(selectedText, '');
-      return;
-    }
-
-    const lastChar = latexString.value.slice(-1);
-    const stringMinusLastChar = latexString.value.slice(0, -1);
-
-    // if the char we are removing is a space, it means we hit a latex command
-
-    const specialChars = ['\\', '^', ' ', '_'];
-    const indexToSlice = specialChars.reduce((acc, char) => {
-      const index = stringMinusLastChar.lastIndexOf(char);
-      return index > acc ? index : acc;
-    }, 0);
-
-    latexString.value = stringMinusLastChar.slice(0, indexToSlice);
-
-    return;
+    return latexString.value = backspace(latexString.value);
   }
 
   if (event.key.length > 1) {
@@ -118,6 +98,9 @@ watch(latexString, (newStr, oldStr) => {
     @blur="setLatexInputFocus(false)"
     ref="latexInput"
   ></div>
+  <span>
+    {{ latexString }}
+  </span>
 </template>
 
 <style scoped>
