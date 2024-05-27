@@ -1,6 +1,6 @@
 import { type Ref, unref } from 'vue'
 
-const alphabet = 'abcdefghijklmnpqrtuvwxyz' // reserved keys: 'S'; 'O'
+const alphabet = 'abefghijklmnpqrtuvwxyz' // reserved keys: 'S'; 'O'; 'C'; 'D'
 
 export const convertFromNameToId = (circleName: string | Ref<string>) => {
   const name = unref(circleName).toLocaleLowerCase()

@@ -50,6 +50,7 @@ const selectedOverlap = ref<Overlap | null>(null)
 
 const circles = reactive<Circle[]>([])
 
+const isControlPressed = ref(false)
 
 const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgroundColor)
 
@@ -113,15 +114,22 @@ const startDrag = (event: MouseEvent) => {
     }
 
     const selectedCirclesCount = circles.filter(c => c.selected).length
-    // If no circles are selected, select the clicked circle
-    if (selectedCirclesCount < 2) {
-      circles.forEach((c, index) => c.selected = index === currentCircleIndex.value)
-    }
 
-    circles.forEach(c => {
-      if (c.selected) {
-        c.offsetX = x - c.x
-        c.offsetY = y - c.y
+    // Determine if we should select only the clicked circle
+    const selectOnlyClicked = selectedCirclesCount < 2 && !isControlPressed.value
+
+    circles.forEach((circle, index) => {
+      if (selectOnlyClicked) {
+        circle.selected = index === currentCircleIndex.value
+      } else if (index === currentCircleIndex.value) {
+        circle.selected = true
+      }
+    })
+
+    circles.forEach(circle => {
+      if (circle.selected) {
+        circle.offsetX = x - circle.x
+        circle.offsetY = y - circle.y
       }
     })
 
@@ -174,6 +182,7 @@ const endDrag = (event: MouseEvent) => {
 }
 
 const createCircle = (event: MouseEvent) => {
+  if (isControlPressed.value) return
   const { x, y } = getMousePos(event)
   circles.forEach(circle => circle.selected = false)
   circles.push({
@@ -209,7 +218,7 @@ const handleCanvasClick = (event: MouseEvent) => {
   const clickedCircleIndex = circles.findIndex(circle => isInsideCircle(x, y, circle))
 
   if (clickedCircleIndex === -1 && !circlesSelectedByDrag.value) {
-    circles.forEach(circle => circle.selected = false)
+    if (!isControlPressed.value) circles.forEach(circle => circle.selected = false)
     selectedOverlap.value = null
   }
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
@@ -275,7 +284,15 @@ const eventListeners = [
   {
     keyCode: 'Escape',
     action: () => circles.forEach(circle => circle.selected = false)
-  }
+  },
+  {
+    keyCode: 'ControlLeft',
+    action: () => isControlPressed.value = true
+  },
+  {
+    keyCode: 'ControlRight',
+    action: () => isControlPressed.value = true
+  },
 ]
 
 const handleKeyPress = (event: KeyboardEvent) => {
@@ -293,12 +310,15 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', () => {})
+  window.removeEventListener('keyup', () => {})
   window.removeEventListener('click', handleClickOutside)
 })
 onMounted(() => {
   window.addEventListener('keydown', handleKeyPress)
   window.addEventListener('click', handleClickOutside)
-
+  window.addEventListener('keyup', (event) => {
+    if (event.code === 'ControlLeft' || event.code === 'ControlRight') isControlPressed.value = false
+  })
 })
 </script>
 
