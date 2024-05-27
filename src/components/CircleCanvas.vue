@@ -103,6 +103,7 @@ const findLastIndex = <T>(arr: T[], predicate: (value: T, index: number, obj: T[
 }
 
 const startDrag = (event: MouseEvent) => {
+  canvasIsActive.value = true
   const { x, y } = getMousePos(event)
   currentCircleIndex.value = findLastIndex(circles, circle => isInsideCircle(x, y, circle) || isOnEdge(x, y, circle))
 
@@ -205,6 +206,7 @@ const createCircle = (event: MouseEvent) => {
 }
 
 const handleCanvasClick = (event: MouseEvent) => {
+  canvasIsActive.value = true
   const { x, y } = getMousePos(event)
 
   // Selecting Circle Sections:
@@ -234,9 +236,11 @@ const handleCanvasClick = (event: MouseEvent) => {
 
 const deleteCircle = () => {
   for (let i = circles.length - 1; i >= 0; i--) {
-    if (circles[i].selected) circles.splice(i, 1);
+    if (circles[i].selected) {
+      circles.splice(i, 1)
+      addToHistory(circles)
+    }
   }
-  addToHistory(circles)
 
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 }
@@ -283,12 +287,12 @@ const endSelection = () => {
   isSelecting.value = false
 }
 
-const pressedKeys = new Set();
+const pressedKeys = new Set()
 
 const eventListeners = [
   {
     keyCode: 'Backspace',
-    action: () => deleteCircle()
+    action: () => { if (canvasIsActive.value) deleteCircle() }
   },
   {
     keyCode: 'Escape',
@@ -302,32 +306,39 @@ const eventListeners = [
           // Ctrl + Shift + Z
           circles.length = 0
           redo()?.forEach(circle => circles.push(circle))
+          drawCircles(convertNameListToIdList(props.sectionsToHighlight));
         } else {
           // Ctrl + Z
           circles.length = 0
           undo()?.forEach(circle => circles.push(circle))
+          drawCircles(convertNameListToIdList(props.sectionsToHighlight));
         }
       }
     }
   }
-];
+]
 
 const handleKeyDown = (event: KeyboardEvent) => {
-  pressedKeys.add(event.code);
+  pressedKeys.add(event.code)
   eventListeners.forEach(listener => {
     if (listener.keyCode === event.code) {
-      listener.action();
+      listener.action()
     }
-  });
-  drawCircles(convertNameListToIdList(props.sectionsToHighlight));
-};
+  })
+  drawCircles(convertNameListToIdList(props.sectionsToHighlight))
+}
 
 const handleKeyUp = (event: KeyboardEvent) => {
-  pressedKeys.delete(event.code);
-};
+  pressedKeys.delete(event.code)
+}
+
+const canvasIsActive = ref(true)
 
 const handleClickOutside = (event: MouseEvent) => {
-  if (canvas.value && !canvas.value.contains(event.target as Node)) circles.forEach(circle => circle.selected = false)
+  if (canvas.value && !canvas.value.contains(event.target as Node)) {
+    circles.forEach(circle => circle.selected = false)
+    canvasIsActive.value = false
+  }
 }
 
 onBeforeUnmount(() => {
