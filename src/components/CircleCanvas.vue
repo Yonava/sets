@@ -63,13 +63,18 @@ const watchAndRerenderProps = watch(props, () => {
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 })
 
-type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize'
+type CursorStyle = 'auto' | 'grab' | 'grabbing' | 'ew-resize' | 'ns-resize'
 
 const cursorStyle = ref<CursorStyle>('auto')
 
+const getAngleBetweenTwoPoints = (x1: number, y1: number, x2: number, y2: number) => {
+  return Math.atan2(Math.abs(y1 - y2), Math.abs(x1 - x2))
+}
+
 const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
   for (let i = circles.length - 1; i >= 0; i--) {
-    if (isOnEdge(mouseX, mouseY, circles[i])) return 'ew-resize'
+    if (isOnEdge(mouseX, mouseY, circles[i])) 
+      return getAngleBetweenTwoPoints(mouseX, mouseY, circles[i].x, circles[i].y) > 0.75 ? 'ns-resize' : 'ew-resize'
     if (isInsideCircle(mouseX, mouseY, circles[i])) return 'grab' 
   }
   return 'auto'
@@ -102,7 +107,6 @@ const startDrag = (event: MouseEvent) => {
     const circle = circles[currentCircleIndex.value]
     if (isOnEdge(x, y, circle)) {
       resizing.value = true
-      cursorStyle.value = 'ew-resize'
     } else {
       dragging.value = true
       cursorStyle.value = 'grabbing'
@@ -159,16 +163,19 @@ const drag = (event: MouseEvent) => {
   }
 }
 
-const endDrag = () => {
+const endDrag = (event: MouseEvent) => {
   dragging.value = false
   resizing.value = false
-  cursorStyle.value = 'auto'
+  const { x, y } = getMousePos(event)
+  cursorStyle.value = updateCursorStyle(x, y)
+
   currentCircleIndex.value = null
   endSelection()
 }
 
 const createCircle = (event: MouseEvent) => {
   const { x, y } = getMousePos(event)
+  circles.forEach(circle => circle.selected = false)
   circles.push({
     id: currentCircleId.value,
     x,

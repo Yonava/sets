@@ -10,7 +10,6 @@ export const convertFromNameToId = (circleName: string | Ref<string>) => {
   for (let i = 0; i < name.length; i++) {
     id = id * base + (alphabet.indexOf(name[i]) + 1)
   }
-  console.log(id)
   return id
 }
 
