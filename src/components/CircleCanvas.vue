@@ -23,7 +23,7 @@ import { isInsideCircle, isOnEdge } from '../utils/circleUtils'
 import { convertNameListToIdList } from '../utils/idToNameUtils'
 import useGetAllSelectablePieces from '../composables/useGetAllSelectablePieces'
 import { highlightColor, backgroundColor } from '../utils/constants'
-
+import useUndoAction from '../composables/useUndoAction'
 
 const allSections = defineModel<string[][]>()
 
@@ -57,6 +57,8 @@ const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgrou
 const getAllSelectablePieces = useGetAllSelectablePieces()
 
 const { drawCircles } = useRenderCanvas(canvas, circles, overlaps, currentOverlapId, selectedOverlap)
+
+const { addToHistory, undo, redo } = useUndoAction<Circle[]>(circles)
 
 const watchAndRerenderProps = watch(props, () => {
   canvasColor.value = props.sectionsToHighlight.some(arr => JSON.stringify(arr) === JSON.stringify(['S'])) ? highlightColor : backgroundColor
@@ -116,7 +118,7 @@ const startDrag = (event: MouseEvent) => {
     const selectedCirclesCount = circles.filter(c => c.selected).length
 
     // Determine if we should select only the clicked circle
-    const selectOnlyClicked = selectedCirclesCount < 2 && !isControlPressed.value
+    const selectOnlyClicked = selectedCirclesCount < 2 && !(pressedKeys.has('ControlLeft') || pressedKeys.has('ControlRight'))
 
     circles.forEach((circle, index) => {
       if (selectOnlyClicked) {
@@ -136,7 +138,7 @@ const startDrag = (event: MouseEvent) => {
     // larger circles on bottom
     circles.sort((a, b) => b.radius - a.radius)
 
-    // this is for last licked goes on top
+    // this is for last clicked goes on top
     // circles.push(circles.splice(currentCircleIndex.value, 1)[0])
     // currentCircleIndex.value = circles.length - 1
   } else {
@@ -172,6 +174,8 @@ const drag = (event: MouseEvent) => {
 }
 
 const endDrag = (event: MouseEvent) => {
+  if (resizing.value || dragging.value) addToHistory(circles)
+
   dragging.value = false
   resizing.value = false
   const { x, y } = getMousePos(event)
@@ -182,7 +186,7 @@ const endDrag = (event: MouseEvent) => {
 }
 
 const createCircle = (event: MouseEvent) => {
-  if (isControlPressed.value) return
+  if (pressedKeys.has('ControlLeft') || pressedKeys.has('ControlRight')) return
   const { x, y } = getMousePos(event)
   circles.forEach(circle => circle.selected = false)
   circles.push({
@@ -195,6 +199,7 @@ const createCircle = (event: MouseEvent) => {
     offsetX: 0,
     offsetY: 0,
   })
+  addToHistory(circles)
   currentCircleId.value++
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 }
@@ -218,7 +223,7 @@ const handleCanvasClick = (event: MouseEvent) => {
   const clickedCircleIndex = circles.findIndex(circle => isInsideCircle(x, y, circle))
 
   if (clickedCircleIndex === -1 && !circlesSelectedByDrag.value) {
-    if (!isControlPressed.value) circles.forEach(circle => circle.selected = false)
+    if (!(pressedKeys.has('ControlLeft') || pressedKeys.has('ControlRight'))) circles.forEach(circle => circle.selected = false)
     selectedOverlap.value = null
   }
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
@@ -231,6 +236,8 @@ const deleteCircle = () => {
   for (let i = circles.length - 1; i >= 0; i--) {
     if (circles[i].selected) circles.splice(i, 1);
   }
+  addToHistory(circles)
+
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
 }
 
@@ -276,6 +283,8 @@ const endSelection = () => {
   isSelecting.value = false
 }
 
+const pressedKeys = new Set();
+
 const eventListeners = [
   {
     keyCode: 'Backspace',
@@ -286,27 +295,40 @@ const eventListeners = [
     action: () => circles.forEach(circle => circle.selected = false)
   },
   {
-    keyCode: 'ControlLeft',
-    action: () => isControlPressed.value = true
-  },
-  {
-    keyCode: 'ControlRight',
-    action: () => isControlPressed.value = true
-  },
-]
-
-const handleKeyPress = (event: KeyboardEvent) => {
-  eventListeners.forEach(listener => {
-    if (event.code === listener.keyCode) {
-      listener.action()
-      drawCircles(convertNameListToIdList(props.sectionsToHighlight))
+    keyCode: 'KeyZ',
+    action: () => {
+      if (pressedKeys.has('ControlLeft') || pressedKeys.has('ControlRight')) {
+        if (pressedKeys.has('ShiftLeft') || pressedKeys.has('ShiftRight')) {
+          // Ctrl + Shift + Z
+          circles.length = 0
+          redo()?.forEach(circle => circles.push(circle))
+        } else {
+          // Ctrl + Z
+          circles.length = 0
+          undo()?.forEach(circle => circles.push(circle))
+        }
+      }
     }
-  })
-}
+  }
+];
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  pressedKeys.add(event.code);
+  eventListeners.forEach(listener => {
+    if (listener.keyCode === event.code) {
+      listener.action();
+    }
+  });
+  drawCircles(convertNameListToIdList(props.sectionsToHighlight));
+};
+
+const handleKeyUp = (event: KeyboardEvent) => {
+  pressedKeys.delete(event.code);
+};
 
 const handleClickOutside = (event: MouseEvent) => {
   if (canvas.value && !canvas.value.contains(event.target as Node)) circles.forEach(circle => circle.selected = false)
-};
+}
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', () => {})
@@ -314,11 +336,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyPress)
+  window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keyup', handleKeyUp)
   window.addEventListener('click', handleClickOutside)
-  window.addEventListener('keyup', (event) => {
-    if (event.code === 'ControlLeft' || event.code === 'ControlRight') isControlPressed.value = false
-  })
 })
 </script>
 
