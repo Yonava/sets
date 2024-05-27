@@ -25,6 +25,7 @@ const hotkeys = {
   'u': '\\cup ',
   'd': '\\Delta ',
   'c': '^c',
+  'o': '\\Omega '
 };
 
 const t = (c: string) => ' ' + c.toUpperCase();

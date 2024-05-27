@@ -9,7 +9,8 @@ type Subset = string[]
 const setLatexAlias: Record<string, string> = {
   'cup': '0',
   'cap': '1',
-  'Delta': '2'
+  'Delta': '2',
+  'Omega': 'o',
 }
 
 const setLatexToExpression = (latex: string) => {
@@ -26,6 +27,7 @@ const setLatexToExpression = (latex: string) => {
 const setParser = (partition: Subset[]) => {
 
   const getSet = (set: string) => {
+    if (set === 'o') return partition
     return partition.filter((subset) => subset.includes(set))
   }
 
