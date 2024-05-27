@@ -25,7 +25,10 @@ const hotkeys = {
   'u': '\\cup ',
   'd': '\\Delta ',
   'c': '^c',
+  'o': '\\Omega '
 };
+
+const t = (c: string) => ' ' + c.toUpperCase();
 </script>
 
 <template>
@@ -38,7 +41,7 @@ const hotkeys = {
   <div style="position: absolute; top: 0; left: 0; z-index: 2; background: white;">
     <LatexInput
       v-model="latexInputString"
-      :transform="(c: string) => ' ' + c.toUpperCase()"
+      :transform="t"
       :hotkeys="hotkeys"
     />
   </div>
