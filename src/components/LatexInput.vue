@@ -131,7 +131,7 @@ watch(latexString, (newStr, oldStr) => {
 }
 
 .input-field-inactive {
-  /* add inactive styles */
+  background: #e2dcdc;
 }
 
 .input-field::after {

@@ -24,8 +24,9 @@ const hotkeys = {
   'i': '\\cap ',
   'u': '\\cup ',
   'd': '\\Delta ',
+  'o': '\\Omega ',
+  'S': 'S',
   'c': '^c',
-  'o': '\\Omega '
 };
 
 const t = (c: string) => ' ' + c.toUpperCase();
@@ -61,16 +62,18 @@ const canvasHeight = window.innerHeight;
         v-model="latexInputString"
         :transform="t"
         :hotkeys="hotkeys"
-        class="w-full rounded-md bg-gray-300"
+        class="w-full rounded-md bg-white"
+      />
+
+      <LatexButton
+        v-for="command in hotkeys"
+        @click="latexInputString += command + ' '"
+        :label="command"
+        class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
       />
 
     </div>
 
   </div>
 
-  <!-- <LatexButton
-    v-for="command in hotkeys"
-    @click="latexInputString += command + ' '"
-    :label="command"
-  /> -->
 </template>
