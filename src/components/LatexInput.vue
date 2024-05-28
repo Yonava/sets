@@ -98,9 +98,6 @@ watch(latexString, (newStr, oldStr) => {
     @blur="setLatexInputFocus(false)"
     ref="latexInput"
   ></div>
-  <span>
-    {{ latexString }}
-  </span>
 </template>
 
 <style scoped>
@@ -123,13 +120,10 @@ watch(latexString, (newStr, oldStr) => {
 }
 
 .text-box {
-  border: 1px solid black;
-  width: 500px;
-  height: 24px;
+  height: 30px;
   padding: 3px;
   padding-left: 10px;
   cursor: text;
-  background: white;
 }
 
 .input-field:focus {

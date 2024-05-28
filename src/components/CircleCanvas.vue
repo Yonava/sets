@@ -24,15 +24,13 @@ import { convertNameListToIdList } from '../utils/idToNameUtils'
 import useGetAllSelectablePieces from '../composables/useGetAllSelectablePieces'
 import { highlightColor, backgroundColor } from '../utils/constants'
 
-
 const allSections = defineModel<string[][]>()
 
 const props = defineProps<{
   sectionsToHighlight: string[][],
+  width: number,
+  height: number,
 }>()
-
-const width = window.innerWidth
-const height = window.innerHeight
 
 const currentCircleId = ref(1)
 const circlesSelectedByDrag = ref(false)
@@ -73,9 +71,9 @@ const getAngleBetweenTwoPoints = (x1: number, y1: number, x2: number, y2: number
 
 const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
   for (let i = circles.length - 1; i >= 0; i--) {
-    if (isOnEdge(mouseX, mouseY, circles[i])) 
+    if (isOnEdge(mouseX, mouseY, circles[i]))
       return getAngleBetweenTwoPoints(mouseX, mouseY, circles[i].x, circles[i].y) > 0.75 ? 'ns-resize' : 'ew-resize'
-    if (isInsideCircle(mouseX, mouseY, circles[i])) return 'grab' 
+    if (isInsideCircle(mouseX, mouseY, circles[i])) return 'grab'
   }
   return 'auto'
 }
