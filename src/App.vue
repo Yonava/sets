@@ -24,31 +24,56 @@ const hotkeys = {
   'i': '\\cap ',
   'u': '\\cup ',
   'd': '\\Delta ',
+  'o': '\\Omega ',
+  'S': 'S',
   'c': '^c',
-  'o': '\\Omega '
 };
 
 const t = (c: string) => ' ' + c.toUpperCase();
+
+const canvasWidth = window.innerWidth;
+const canvasHeight = window.innerHeight;
 </script>
 
 <template>
-  <div style="position: absolute; left: 0; top: 0;">
+  <div class="absolute w-screen flex justify-center">
+    <div class="bg-gray-900 mt-5 px-5 py-4 rounded-xl">
+      <h1 class="font-semibold text-white text-4xl">
+        Set Theory Visualizer
+      </h1>
+    </div>
+  </div>
+  <div>
     <CircleCanvas
       v-model="setSpace"
       :sections-to-highlight="output"
+      :width="canvasWidth"
+      :height="canvasHeight"
     />
   </div>
-  <div style="position: absolute; top: 0; left: 0; z-index: 2; background: white;">
-    <LatexInput
-      v-model="latexInputString"
-      :transform="t"
-      :hotkeys="hotkeys"
-    />
+  <div
+    style="position: absolute; bottom: 0; z-index: 2;"
+    class="flex justify-center items-center w-screen"
+  >
+
+    <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
+
+      <LatexInput
+        v-model="latexInputString"
+        :transform="t"
+        :hotkeys="hotkeys"
+        class="w-full rounded-md bg-white"
+      />
+
+      <LatexButton
+        v-for="command in hotkeys"
+        @click="latexInputString += command + ' '"
+        :label="command"
+        class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
+      />
+
+    </div>
+
   </div>
 
-  <!-- <LatexButton
-    v-for="command in hotkeys"
-    @click="latexInputString += command + ' '"
-    :label="command"
-  /> -->
 </template>
