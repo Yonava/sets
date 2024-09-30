@@ -15,7 +15,7 @@ const output = computed(() => {
   try {
     return parse(expr);
   } catch (e) {
-    // return 'Could Not Parse'
+    // could not parse
     return []
   }
 });
@@ -75,5 +75,4 @@ const canvasHeight = window.innerHeight;
     </div>
 
   </div>
-
 </template>
