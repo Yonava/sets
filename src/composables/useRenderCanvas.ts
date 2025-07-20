@@ -7,7 +7,8 @@ import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColo
 
 const useRenderCanvas = (
   canvas: Ref<HTMLCanvasElement | null>,
-  circles: Circle[], overlaps: Overlap[],
+  circles: Circle[],
+  overlaps: Overlap[],
   currentOverlapId: Ref<number>,
   selectedOverlap: Ref<Overlap | null>,
 ) => {

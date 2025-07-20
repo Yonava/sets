@@ -1,7 +1,7 @@
 import type { Circle, Overlap } from '../types/types'
 import { convertIdListToNameList } from '../utils/idToNameUtils'
 
-const useGetAllSelectablePieces = () => {
+const allSelectablePiecesGetter = () => {
   let prevCirclesLength: number = 0
   let prevOverlaps: Overlap[] = []
   let memoizedResult: string[][] | null = null
@@ -32,4 +32,4 @@ const useGetAllSelectablePieces = () => {
   }
 }
 
-export default useGetAllSelectablePieces
+export default allSelectablePiecesGetter

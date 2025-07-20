@@ -21,7 +21,7 @@ import type { Circle, Overlap } from '../types/types'
 import useRenderCanvas from '../composables/useRenderCanvas'
 import { isInsideCircle, isOnEdge } from '../utils/circleUtils'
 import { convertNameListToIdList } from '../utils/idToNameUtils'
-import useGetAllSelectablePieces from '../composables/useGetAllSelectablePieces'
+import allSelectablePiecesGetter from '../composables/allSelectablePiecesGetter'
 import { highlightColor, backgroundColor } from '../utils/constants'
 import useUndoAction from '../composables/useUndoAction'
 
@@ -54,7 +54,7 @@ const isControlPressed = ref(false)
 
 const canvasColor = ref<typeof backgroundColor | typeof highlightColor>(backgroundColor)
 
-const getAllSelectablePieces = useGetAllSelectablePieces()
+const getAllSelectablePieces = allSelectablePiecesGetter()
 
 const { drawCircles } = useRenderCanvas(canvas, circles, overlaps, currentOverlapId, selectedOverlap)
 
