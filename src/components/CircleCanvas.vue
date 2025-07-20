@@ -60,7 +60,7 @@ const { drawCircles } = useRenderCanvas(canvas, circles, overlaps, currentOverla
 
 const { addToHistory, undo, redo } = useUndoAction<Circle[]>(circles)
 
-const watchAndRerenderProps = watch(props, () => {
+watch(props, () => {
   canvasColor.value = props.sectionsToHighlight.some(arr => JSON.stringify(arr) === JSON.stringify(['S'])) ? highlightColor : backgroundColor
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
   drawCircles(convertNameListToIdList(props.sectionsToHighlight))
@@ -84,7 +84,6 @@ const updateCursorStyle = (mouseX: number, mouseY: number): CursorStyle => {
 }
 
 const getMousePos = (event: MouseEvent) => {
-
   if (!canvas.value) return { x: 0, y: 0 }
   const rect = canvas.value.getBoundingClientRect()
   return {
