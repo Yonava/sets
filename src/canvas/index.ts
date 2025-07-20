@@ -28,18 +28,14 @@ export const getCtx = (
 
 const REPAINT_FPS = 60;
 
-const initCanvasWidthHeight = (canvas: HTMLCanvasElement | undefined) => {
-  if (!canvas) throw new Error('Canvas not found in DOM. Check ref link.');
-
-  const dpr = getDevicePixelRatio()
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-}
+const initCanvasFullScreen = (canvas: HTMLCanvasElement) => {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+};
 
 export const useMagicCanvas: UseMagicCanvas = (options = {}) => {
   const canvas = ref<HTMLCanvasElement>()
-  const canvasBoxSize = useElementSize(canvas)
 
   const drawContent = ref<DrawContent>(() => { })
   const drawBackgroundPattern = ref<DrawPattern>(() => { })
@@ -48,11 +44,9 @@ export const useMagicCanvas: UseMagicCanvas = (options = {}) => {
   let repaintInterval: NodeJS.Timeout;
 
   onMounted(() => {
-    initCanvasWidthHeight(canvas.value)
+    initCanvasFullScreen(canvas.value!)
     repaintInterval = setInterval(repaintCanvas, 1000 / REPAINT_FPS);
   })
-
-  watch([canvasBoxSize.width, canvasBoxSize.height], () => initCanvasWidthHeight(canvas.value))
 
   const { cleanup: cleanupCamera, ...camera } = useCamera(
     canvas,
