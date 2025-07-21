@@ -37,7 +37,7 @@
   });
 
   const canvasColor = computed(() => {
-    return entireSetSpaceHighlighted ? highlightColor : backgroundColor;
+    return entireSetSpaceHighlighted.value ? highlightColor : backgroundColor;
   });
 
   const { drawCircles, overlaps } = useRenderCanvas(
