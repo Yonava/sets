@@ -1,18 +1,17 @@
 
-export interface Circle {
-    id: number
-    x: number
-    y: number
-    radius: number
-    selected: boolean
-    color: string
-    offsetX: number
-    offsetY: number
+export type CircleDisplayName = string
+
+export type Circle = {
+  id: CircleDisplayName,
+  x: number,
+  y: number,
+  radius: number,
+  color: string,
 }
 
-export interface Overlap {
-    id: number
-    circles: Circle[]
-    color: string
-    originalColor: string
+export type Overlap = {
+  id: string,
+  circles: Circle[],
+  color: string,
+  originalColor: string,
 }

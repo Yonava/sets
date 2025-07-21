@@ -1,35 +1,15 @@
 import type { Circle, Overlap } from '../types/types'
 import { convertIdListToNameList } from '../utils/idToNameUtils'
 
-const allSelectablePiecesGetter = () => {
-  let prevCirclesLength: number = 0
-  let prevOverlaps: Overlap[] = []
-  let memoizedResult: string[][] | null = null
+export const getAllSelectablePieces = (circles: Circle[], overlaps: Overlap[]) => {
+  const circleIds = circles.map(circle => circle.id)
+  const overlapIdList = overlaps.map(overlap => overlap.circles.map(circle => circle.id))
+  const selectablePieces = convertIdListToNameList(circleIds).flat().map(name => [name])
 
-  return (circles: Circle[], overlaps: Overlap[]) => {
-    const circlesLength = circles.length
-    const overlapsChanged = JSON.stringify(overlaps) !== JSON.stringify(prevOverlaps)
+  overlapIdList.forEach(overlapIds => {
+    selectablePieces.push(convertIdListToNameList(overlapIds))
+  })
 
-    if (circlesLength === prevCirclesLength && !overlapsChanged && memoizedResult) {
-      return memoizedResult
-    }
-
-    prevCirclesLength = circlesLength
-    prevOverlaps = [...overlaps]
-
-    const circleIds = circles.map(circle => circle.id)
-    const overlapIdList = overlaps.map(overlap => overlap.circles.map(circle => circle.id))
-    const selectablePieces = convertIdListToNameList(circleIds).flat().map(name => [name])
-
-    overlapIdList.forEach(overlapIds => {
-      selectablePieces.push(convertIdListToNameList(overlapIds))
-    })
-
-    selectablePieces.push(['S'])
-
-    memoizedResult = selectablePieces
-    return selectablePieces
-  }
+  selectablePieces.push(['S'])
+  return selectablePieces
 }
-
-export default allSelectablePiecesGetter

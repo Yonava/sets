@@ -1,14 +1,11 @@
 import type { Ref } from 'vue'
 import type { Overlap, Circle } from '@/types/types'
 import { isOverlapping } from '@/utils/circleUtils'
-import { convertFromIdToName } from '@/utils/idToNameUtils'
-import { highlightColor, backgroundColor, circleSelectedColor, circleOutlineColor, showCircleOutlines, showCircleText } from '../utils/constants'
+import { highlightColor, backgroundColor, circleOutlineColor, showCircleOutlines, showCircleText } from '../utils/constants'
 
-
-const useRenderCanvas = (
+export const useRenderCanvas = (
   canvas: Ref<HTMLCanvasElement | undefined>,
   circles: Circle[],
-  overlaps: Overlap[],
   currentOverlapId: Ref<number>,
   selectedOverlap: Ref<Overlap | null>,
 ) => {
@@ -24,16 +21,16 @@ const useRenderCanvas = (
     ctx.beginPath()
     ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
     ctx.lineWidth = 3
-    ctx.strokeStyle = circle.selected ? circleSelectedColor : circleOutlineColor
+    ctx.strokeStyle = circleOutlineColor
     ctx.stroke()
   }
 
   const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.font = '15px Arial'
-    ctx.fillStyle = circle.selected ? circleSelectedColor : circleOutlineColor
+    ctx.fillStyle = circleOutlineColor
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle'
-    ctx.fillText(convertFromIdToName(circle.id), circle.x, circle.y)
+    ctx.fillText(circle.id, circle.x, circle.y)
     ctx.stroke()
   }
 
@@ -87,7 +84,9 @@ const useRenderCanvas = (
     })
   }
 
-  const findOverlaps = (overlapGroup: Circle[], startIndex: number) => {
+  let overlaps: Overlap[] = []
+
+  const populateOverlapsArray = (overlapGroup: Circle[] = [], startIndex = 0) => {
     if (overlapGroup.length > 1) {
       const color = backgroundColor
       overlaps.push({
@@ -110,17 +109,15 @@ const useRenderCanvas = (
 
       if (allOverlap) {
         overlapGroup.push(circles[i])
-        findOverlaps(overlapGroup, i + 1)
+        populateOverlapsArray(overlapGroup, i + 1)
         overlapGroup.pop()
       }
     }
   }
 
   const highlightOverlappingAreas = (ctx: CanvasRenderingContext2D, selectedSections: number[][]) => {
-    overlaps.length = 0
-    currentOverlapId.value = 0
-
-    findOverlaps([], 0)
+    overlaps = []
+    populateOverlapsArray()
     // IMPORTANT for render order
     overlaps.sort((a, b) => a.circles.length - b.circles.length)
     if (selectedOverlap.value) overlaps.push(selectedOverlap.value)
@@ -132,9 +129,5 @@ const useRenderCanvas = (
     overlaps.forEach(o => drawOverlappingAreas(ctx, o))
   }
 
-  return {
-    drawCircles,
-  }
+  return drawCircles
 }
-
-export default useRenderCanvas
