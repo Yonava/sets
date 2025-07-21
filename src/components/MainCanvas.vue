@@ -6,28 +6,29 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from "vue";
-  import type { Circle, CircleDisplayName, Overlap } from "../types/types";
+  import { computed, ref, watch } from "vue";
+  import type { Circle, CircleDisplayName } from "../types/types";
   import { useRenderCanvas } from "../composables/useRenderCanvas";
-  import { convertNameListToIdList } from "../utils/idToNameUtils";
-  import { getAllSelectablePieces } from "../composables/allSelectablePiecesGetter";
   import { highlightColor, backgroundColor } from "../utils/constants";
   import MagicCanvas from "@/canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@/canvas";
-  import { useCanvasFocus } from "./extras";
+  import { useAllSections, useCanvasFocus } from "./extras";
+  import { useLabelGetter } from "./useLabel";
 
   const magic = useMagicCanvas();
-
-  const allSections = defineModel<string[][]>();
 
   const props = defineProps<{
     sectionsToHighlight: CircleDisplayName[][];
   }>();
 
+  const emits = defineEmits<{
+    (e: "sections-updated", value: CircleDisplayName[][]): void;
+  }>();
+
   const { canvasFocused } = useCanvasFocus(magic.canvas);
-  const overlaps = ref<Overlap[]>([]);
 
   const circles = ref<Circle[]>([]);
+  const getCircleLabel = useLabelGetter(circles);
 
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
@@ -39,20 +40,27 @@
     return entireSetSpaceHighlighted ? highlightColor : backgroundColor;
   });
 
-  const drawCircles = useRenderCanvas(magic.canvas, circles.value);
+  const { drawCircles, overlaps } = useRenderCanvas(
+    magic.canvas,
+    circles.value
+  );
+
+  const allSections = useAllSections(circles, overlaps);
+
+  watch(allSections, () => {
+    emits("sections-updated", allSections.value);
+  });
 
   const createCircle = () => {
     const { x, y } = magic.cursorCoordinates.value;
     circles.value.push({
-      id: currentCircleId.value,
+      id: getCircleLabel(),
       x,
       y,
       radius: 70,
       color: backgroundColor,
     });
-    drawCircles(convertNameListToIdList(props.sectionsToHighlight));
-
-    allSections.value = getAllSelectablePieces(circles.value, overlaps.value);
+    drawCircles(props.sectionsToHighlight);
   };
 </script>
 

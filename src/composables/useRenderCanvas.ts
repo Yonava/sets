@@ -1,14 +1,14 @@
-import type { Ref } from 'vue'
-import type { Overlap, Circle } from '@/types/types'
+import { ref, type Ref } from 'vue'
+import type { Overlap, Circle, CircleDisplayName } from '@/types/types'
 import { isOverlapping } from '@/utils/circleUtils'
 import { highlightColor, backgroundColor, circleOutlineColor, showCircleOutlines, showCircleText } from '../utils/constants'
+import { generateId } from '@/components/extras'
 
 export const useRenderCanvas = (
   canvas: Ref<HTMLCanvasElement | undefined>,
   circles: Circle[],
-  currentOverlapId: Ref<number>,
-  selectedOverlap: Ref<Overlap | null>,
 ) => {
+  const overlaps = ref<Overlap[]>([])
 
   const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle) => {
     ctx.beginPath()
@@ -34,7 +34,7 @@ export const useRenderCanvas = (
     ctx.stroke()
   }
 
-  const drawCircles = (selectedSections: number[][]) => {
+  const drawCircles = (selectedSections: CircleDisplayName[][]) => {
     if (!canvas.value) return
     const ctx = canvas.value.getContext('2d')!
     ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
@@ -61,7 +61,7 @@ export const useRenderCanvas = (
   }
 
 
-  const renderSelectedSections = (highlightIds: number[][]) => {
+  const renderSelectedSections = (highlightIds: CircleDisplayName[][]) => {
     circles.forEach(circle => circle.color = backgroundColor)
 
     highlightIds.forEach(ids => {
@@ -73,9 +73,9 @@ export const useRenderCanvas = (
           }
         })
       } else {
-        overlaps.forEach(overlap => {
-          const overlapIds = overlap.circles.map(circle => circle.id).sort((a, b) => a - b)
-          const sortedIds = [...ids].sort((a, b) => a - b)
+        overlaps.value.forEach(overlap => {
+          const overlapIds = overlap.circles.map(circle => circle.id).sort((a, b) => a.localeCompare(b))
+          const sortedIds = [...ids].sort((a, b) => a.localeCompare(b))
           if (JSON.stringify(overlapIds) === JSON.stringify(sortedIds)) {
             overlap.color = highlightColor
           }
@@ -84,18 +84,15 @@ export const useRenderCanvas = (
     })
   }
 
-  let overlaps: Overlap[] = []
-
   const populateOverlapsArray = (overlapGroup: Circle[] = [], startIndex = 0) => {
     if (overlapGroup.length > 1) {
       const color = backgroundColor
-      overlaps.push({
+      overlaps.value.push({
         circles: [...overlapGroup],
         color,
         originalColor: color,
-        id: currentOverlapId.value
+        id: generateId()
       })
-      currentOverlapId.value++
     }
 
     for (let i = startIndex; i < circles.length; i++) {
@@ -115,19 +112,24 @@ export const useRenderCanvas = (
     }
   }
 
-  const highlightOverlappingAreas = (ctx: CanvasRenderingContext2D, selectedSections: number[][]) => {
-    overlaps = []
+  const highlightOverlappingAreas = (
+    ctx: CanvasRenderingContext2D,
+    selectedSections: CircleDisplayName[][]
+  ) => {
+    overlaps.value = []
     populateOverlapsArray()
     // IMPORTANT for render order
-    overlaps.sort((a, b) => a.circles.length - b.circles.length)
-    if (selectedOverlap.value) overlaps.push(selectedOverlap.value)
+    overlaps.value.sort((a, b) => a.circles.length - b.circles.length)
     /*
       IMPORTANT thing here is that if you want regions that exclude others, render order matters. if you want
       something union with something but excluding something else, then put it behind those and have the stuff render on top of it.
     */
     renderSelectedSections(selectedSections) // IMPORTANT has to be after overlaps get generated
-    overlaps.forEach(o => drawOverlappingAreas(ctx, o))
+    overlaps.value.forEach(o => drawOverlappingAreas(ctx, o))
   }
 
-  return drawCircles
+  return {
+    drawCircles,
+    overlaps,
+  }
 }

@@ -1,7 +1,7 @@
 import type { MagicCanvasProps } from "@/canvas/types";
+import type { Circle, Overlap } from "@/types/types";
 import { onClickOutside } from "@vueuse/core";
-import { onBeforeUnmount, onMounted, onUnmounted, ref } from "vue";
-
+import { computed, onBeforeUnmount, onMounted, ref, type Ref } from "vue";
 
 /**
  * generates a new, random, id
@@ -32,4 +32,20 @@ export const useCanvasFocus = (canvas: MagicCanvasProps['canvas']) => {
   })
 
   return { canvasFocused }
+}
+
+/**
+ * all individual sections of the set space
+ */
+export const useAllSections = (circles: Ref<Circle[]>, overlaps: Ref<Overlap[]>) => {
+  return computed(() => {
+    const overlapsWithNames = overlaps.value.map(o => o.circles.map(c => c.id))
+    const circlesByThemselves = circles.value.map(c => c.id).map(id => [id])
+
+    return [
+      ...overlapsWithNames,
+      ...circlesByThemselves,
+      ['S'],
+    ]
+  })
 }

@@ -4,14 +4,15 @@
   import LatexButton from "./components/LatexButton.vue";
   import { setLatexToExpression, setParser } from "./expressionParser";
   import { ref, computed } from "vue";
+  import type { CircleDisplayName } from "./types/types";
 
   const latexInputString = ref("");
 
-  const setSpace = ref([]);
+  const allSections = ref<CircleDisplayName[][]>([]);
 
   const output = computed(() => {
     const expr = setLatexToExpression(latexInputString.value);
-    const parse = setParser(setSpace.value);
+    const parse = setParser(allSections.value);
     try {
       return parse(expr);
     } catch (e) {
@@ -39,7 +40,7 @@
     </div>
   </div>
   <MainCanvas
-    v-model="setSpace"
+    @sections-updated="(newAllSections) => (allSections = newAllSections)"
     :sections-to-highlight="output"
   />
   <div
