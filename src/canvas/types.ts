@@ -1,10 +1,9 @@
 import type { Ref } from "vue"
 import type { Camera } from "./camera"
 import type { DrawPattern } from "./backgroundPattern"
+import type { Coordinate } from "@/shapes/types/utility"
 
 export type DrawContent = (ctx: CanvasRenderingContext2D) => void
-
-export type Coordinate = { x: number, y: number }
 
 export type DrawFns = {
   content: Ref<DrawContent>,

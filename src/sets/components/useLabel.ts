@@ -1,4 +1,4 @@
-import type { Circle } from '@/types/types';
+import type { Circle } from '@/sets/types/types';
 import type { Ref } from 'vue';
 
 const RESERVED = ['S', 'O', 'C', 'D', 'I', 'U']

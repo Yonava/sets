@@ -9,13 +9,13 @@
   import { computed, ref, watch } from "vue";
   import type { Circle, CircleLabel } from "../types/types";
   import { draw } from "../composables/draw";
-  import { COLORS } from "@utils/sets/constants";
+  import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
   import { useLabelGetter } from "./useLabel";
-  import { useOverlaps } from "@/composables/useCalculateOverlaps";
-  import { useCanvasFocus } from "@/composables/useCanvasFocus";
-  import { useAllSections } from "@/composables/useAllSections";
+  import { useOverlaps } from "@/sets/composables/useCalculateOverlaps";
+  import { useCanvasFocus } from "@/sets/composables/useCanvasFocus";
+  import { useAllSections } from "@/sets/composables/useAllSections";
   import { cross } from "@/shapes/shapes/cross";
 
   const magic = useMagicCanvas();
@@ -72,11 +72,9 @@
   });
 
   const createCircle = () => {
-    const { x, y } = magic.cursorCoordinates.value;
     circles.value.push({
       label: getCircleLabel(),
-      x,
-      y,
+      at: magic.cursorCoordinates.value,
       radius: 70,
     });
   };

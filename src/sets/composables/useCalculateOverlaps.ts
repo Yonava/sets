@@ -1,7 +1,6 @@
 import type { Overlap, Circle } from '../types/types'
 import { computed, type Ref } from 'vue'
-import { isOverlapping } from '@/utils/sets/circleUtils'
-import { COLORS } from '@/utils/sets/constants'
+import { isOverlapping } from '@/sets/other/circleUtils'
 
 const getOverlapsArray = (circles: Circle[]) => {
   const overlaps: Overlap[] = []
@@ -11,7 +10,6 @@ const getOverlapsArray = (circles: Circle[]) => {
     if (overlapGroup.length > 1) {
       overlaps.push({
         circles: overlapGroup.map((c) => c.label),
-        color: COLORS.BACKGROUND,
         id: overlapId++,
       })
     }

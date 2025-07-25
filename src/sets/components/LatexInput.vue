@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import katex from "katex";
   import { ref, watch, onMounted } from "vue";
-  import { backspace } from "@/utils/sets/latexInputBackspace";
+  import { backspace } from "@/sets/other/latexInputBackspace";
 
   const props = defineProps<{
     hotkeys: Record<string, string>;

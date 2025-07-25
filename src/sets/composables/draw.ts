@@ -1,17 +1,21 @@
-import type { Overlap, Circle, CircleLabel } from '@/types/types'
-import { COLORS } from '../utils/sets/constants'
-import { getCircle } from '@/utils/sets/circleUtils'
+import type { Overlap, Circle, CircleLabel } from '@/sets/types/types'
+import { COLORS } from '@/sets/other/constants'
+import { getCircle } from '@/sets/other/circleUtils'
+import { getMagicCoordinates } from '@canvas/coordinates'
+import { rect } from '@shapes/rect'
+import { circle } from '@/shapes/shapes/circle'
+import type { CircleSchema } from '@/shapes/shapes/circle/types'
 
-const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
-  ctx.beginPath()
-  ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
-  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : 'transparent';
-  ctx.fill()
+const drawCircleBackground = (ctx: CanvasRenderingContext2D, circleProps: CircleSchema, isHighlighted: boolean) => {
+  circle({
+    ...circleProps,
+    fillColor: isHighlighted ? COLORS.HIGHLIGHT : 'transparent',
+  }).draw(ctx)
 }
 
 const drawCircleOutline = (ctx: CanvasRenderingContext2D, circle: Circle) => {
   ctx.beginPath()
-  ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
+  ctx.arc(circle.at.x, circle.at.y, circle.radius, 0, 2 * Math.PI)
   ctx.lineWidth = 3
   ctx.strokeStyle = COLORS.CIRCLE_OUTLINE
   ctx.stroke()
@@ -22,21 +26,37 @@ const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
   ctx.fillStyle = COLORS.CIRCLE_OUTLINE;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle'
-  ctx.fillText(circle.label, circle.x, circle.y)
+  ctx.fillText(circle.label, circle.at.x, circle.at.y)
   ctx.stroke()
 }
 
 const drawOverlappingAreas = (ctx: CanvasRenderingContext2D, circles: Circle[], overlap: Overlap, isHighlighted: boolean) => {
   ctx.save()
+
   for (const circleLabel of overlap.circles) {
-    const { x, y, radius } = getCircle(circles, circleLabel)
+    const { at: { x, y }, radius } = getCircle(circles, circleLabel)
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, 2 * Math.PI)
     ctx.clip()
   }
 
-  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  const startingCoords = getMagicCoordinates({
+    clientX: 0,
+    clientY: 0,
+  }, ctx)
+
+  const endingCoords = getMagicCoordinates({
+    clientX: window.innerWidth,
+    clientY: window.innerHeight
+  }, ctx)
+
+  rect({
+    at: startingCoords,
+    width: endingCoords.x - startingCoords.x,
+    height: endingCoords.y - startingCoords.y,
+    fillColor: isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND,
+  }).draw(ctx);
+
   ctx.restore()
 }
 
@@ -87,20 +107,6 @@ const getHighlightedSections = (
     highlightedOverlaps,
   }
 }
-
-export const useCooldownLog = (frequencyMs = 1000) => {
-  let cooldown = false;
-  const log = (...data: any[]) => {
-    if (cooldown) return;
-    console.log(...data)
-    cooldown = true
-  }
-  setInterval(() => cooldown = false, frequencyMs)
-  return log
-}
-
-// const log = useCooldownLog()
-// const log2 = useCooldownLog()
 
 export const draw = (
   ctx: CanvasRenderingContext2D,

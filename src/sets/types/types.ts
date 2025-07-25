@@ -1,10 +1,10 @@
+import type { Coordinate } from "@/shapes/types/utility"
 
 export type CircleLabel = string
 
 export type Circle = {
+  at: Coordinate
   label: CircleLabel,
-  x: number,
-  y: number,
   radius: number,
 }
 

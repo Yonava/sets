@@ -1,4 +1,4 @@
-import type { Circle, Overlap } from "@/types/types"
+import type { Circle, Overlap } from "@/sets/types/types"
 import { computed, type Ref } from "vue"
 
 /**

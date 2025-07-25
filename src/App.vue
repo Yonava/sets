@@ -1,10 +1,13 @@
 <script setup lang="ts">
-  import LatexInput from "./components/LatexInput.vue";
-  import MainCanvas from "./components/MainCanvas.vue";
-  import LatexButton from "./components/LatexButton.vue";
-  import { setLatexToExpression, setParser } from "./expressionParser";
+  import LatexInput from "./sets/components/LatexInput.vue";
+  import MainCanvas from "./sets/components/MainCanvas.vue";
+  import LatexButton from "./sets/components/LatexButton.vue";
+  import {
+    setLatexToExpression,
+    setParser,
+  } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
-  import type { CircleLabel } from "./types/types";
+  import type { CircleLabel } from "./sets/types/types";
 
   const latexInputString = ref("");
 
