@@ -2,7 +2,7 @@ import type { Overlap, Circle, CircleLabel } from '@/types/types'
 import { COLORS } from '../utils/constants'
 import { getCircle } from '@/utils/circleUtils'
 
-const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
+export const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
   ctx.beginPath()
   ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
   ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;
@@ -28,15 +28,15 @@ const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
 
 const drawOverlappingAreas = (ctx: CanvasRenderingContext2D, circles: Circle[], overlap: Overlap, isHighlighted: boolean) => {
   ctx.save()
-  for (const circleLabel of overlap.circles) {
-    const { x, y, radius } = getCircle(circles, circleLabel)
-    ctx.beginPath()
-    ctx.arc(x, y, radius, 0, 2 * Math.PI)
-    ctx.clip()
-  }
+  // for (const circleLabel of overlap.circles) {
+  //   const { x, y, radius } = getCircle(circles, circleLabel)
+  //   ctx.beginPath()
+  //   ctx.arc(x, y, radius, 0, 2 * Math.PI)
+  //   ctx.clip()
+  // }
 
-  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  ctx.fillStyle = 'blue';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.restore()
 }
 
@@ -46,7 +46,7 @@ const colorOverlappingAreas = (
   overlaps: Overlap[],
   highlightedOverlaps: Set<Overlap['id']>,
 ) => {
-  const sortedOverlaps = overlaps.toSorted((a, b) => b.circles.length - a.circles.length);
+  const sortedOverlaps = overlaps.toSorted((a, b) => a.circles.length - b.circles.length);
   // IMPORTANT for render order
   /*
     IMPORTANT thing here is that if you want regions that exclude others, render order matters. if you want
@@ -55,6 +55,7 @@ const colorOverlappingAreas = (
   // IMPORTANT has to be after overlaps get generated
 
   for (const overlap of sortedOverlaps) {
+    log2(overlap.circles, highlightedOverlaps.has(overlap.id))
     drawOverlappingAreas(ctx, circles, overlap, highlightedOverlaps.has(overlap.id))
   }
 }
@@ -70,7 +71,7 @@ const getHighlightedSections = (
     if (selection.length === 1) {
       const [label] = selection
       highlightedCircles.add(label)
-      break;
+      continue;
     }
 
     for (const overlap of overlaps) {
@@ -90,9 +91,9 @@ const getHighlightedSections = (
 
 export const useCooldownLog = (frequencyMs = 1000) => {
   let cooldown = false;
-  const log = (data: any) => {
+  const log = (...data: any[]) => {
     if (cooldown) return;
-    console.log(data)
+    console.log(...data)
     cooldown = true
   }
   setInterval(() => cooldown = false, frequencyMs)
@@ -100,6 +101,7 @@ export const useCooldownLog = (frequencyMs = 1000) => {
 }
 
 const log = useCooldownLog()
+const log2 = useCooldownLog()
 
 export const draw = (
   ctx: CanvasRenderingContext2D,
@@ -112,11 +114,16 @@ export const draw = (
     highlightedOverlaps,
   } = getHighlightedSections(selectedSections, overlaps)
 
-  for (const circle of circles) {
-    drawCircleBackground(ctx, circle, highlightedCircles.has(circle.label))
-  }
+  ctx.fillStyle = 'blue';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  colorOverlappingAreas(ctx, circles, overlaps, highlightedOverlaps)
+  // log(Array.from(highlightedOverlaps))
+
+  // colorOverlappingAreas(ctx, circles, overlaps, highlightedOverlaps)
+
+  // for (const circle of circles) {
+  //   drawCircleBackground(ctx, circle, highlightedCircles.has(circle.label))
+  // }
 
   for (const circle of circles) {
     drawCircleOutline(ctx, circle)

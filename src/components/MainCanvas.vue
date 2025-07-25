@@ -68,7 +68,6 @@
       x,
       y,
       radius: 70,
-      color: COLORS.BACKGROUND,
     });
   };
 </script>
