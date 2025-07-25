@@ -1,28 +1,26 @@
+import { generateId } from '@/components/extras'
 import type { Overlap, Circle } from '../types/types'
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
-const useCalculateOverlaps = (circles: Circle[] ) => {
+const isOverlapping = (circle1: Circle, circle2: Circle) => {
+  const dx = circle2.x - circle1.x
+  const dy = circle2.y - circle1.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  return distance < circle1.radius + circle2.radius
+}
 
-  const currentOverlapId = ref(0)
-  const overlaps = reactive<Overlap[]>([])
-
-  const isOverlapping = (circle1: Circle, circle2: Circle) => {
-    const dx = circle2.x - circle1.x
-    const dy = circle2.y - circle1.y
-    const distance = Math.sqrt(dx * dx + dy * dy)
-    return distance < circle1.radius + circle2.radius
-  }
+export const useCalculateOverlaps = (circles: Circle[]) => {
+  const overlaps = ref<Overlap[]>([])
 
   const findOverlaps = (overlapGroup: Circle[], startIndex: number) => {
     if (overlapGroup.length > 1) {
       const color = 'rgba(0, 0, 0, 1)'
-      overlaps.push({
+      overlaps.value.push({
         circles: [...overlapGroup],
         color,
         originalColor: color,
-        id: currentOverlapId.value
+        id: generateId()
       })
-      currentOverlapId.value++
     }
 
     for (let i = startIndex; i < circles.length; i++) {
@@ -43,11 +41,7 @@ const useCalculateOverlaps = (circles: Circle[] ) => {
   }
 
   return {
-    currentOverlapId,
     overlaps,
-
     findOverlaps,
   }
 }
-
-export default useCalculateOverlaps

@@ -8,7 +8,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import type { Circle, CircleDisplayName } from "../types/types";
-  import { useRenderCanvas } from "../composables/useRenderCanvas";
+  import { drawCircles } from "../composables/useRenderCanvas";
   import { highlightColor, backgroundColor } from "../utils/constants";
   import MagicCanvas from "@/canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@/canvas";
@@ -30,6 +30,10 @@
   const circles = ref<Circle[]>([]);
   const getCircleLabel = useLabelGetter(circles);
 
+  magic.draw.content.value = (ctx) => {
+    drawCircles(ctx, circles.value, props.sectionsToHighlight);
+  };
+
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
       return section.length === 1 && section[0] === "S";
@@ -40,16 +44,11 @@
     return entireSetSpaceHighlighted.value ? highlightColor : backgroundColor;
   });
 
-  const { drawCircles, overlaps } = useRenderCanvas(
-    magic.canvas,
-    circles.value
-  );
+  // const allSections = useAllSections(circles, overlaps);
 
-  const allSections = useAllSections(circles, overlaps);
-
-  watch(allSections, () => {
-    emits("sections-updated", allSections.value);
-  });
+  // watch(allSections, () => {
+  //   emits("sections-updated", allSections.value);
+  // });
 
   const createCircle = () => {
     const { x, y } = magic.cursorCoordinates.value;
@@ -60,7 +59,6 @@
       radius: 70,
       color: backgroundColor,
     });
-    drawCircles(props.sectionsToHighlight);
   };
 </script>
 
