@@ -58,12 +58,12 @@
     draw(ctx, circles.value, overlaps.value, circleSectionsToHighlight.value);
   };
 
-  magic.draw.backgroundPattern.value = (ctx, at) => {
+  magic.draw.backgroundPattern.value = (ctx, at, alpha) => {
     cross({
       at,
       size: 14,
       lineWidth: 1,
-      fillColor: "white",
+      fillColor: "#6b7280" + alpha,
     }).draw(ctx);
   };
 

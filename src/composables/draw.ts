@@ -5,7 +5,7 @@ import { getCircle } from '@/utils/sets/circleUtils'
 const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
   ctx.beginPath()
   ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
-  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;
+  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : 'transparent';
   ctx.fill()
 }
 
