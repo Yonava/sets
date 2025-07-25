@@ -9,7 +9,11 @@
     "lib": ["ES2023", "DOM"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shape/*": ["./src/shapes/*"],
+      "@shapes/*": ["./src/shapes/shapes/*"],
+      "@canvas/*": ["./src/canvas/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   }
 }

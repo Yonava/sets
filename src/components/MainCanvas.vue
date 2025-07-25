@@ -9,13 +9,14 @@
   import { computed, ref, watch } from "vue";
   import type { Circle, CircleLabel } from "../types/types";
   import { draw } from "../composables/draw";
-  import { COLORS } from "../utils/constants";
-  import MagicCanvas from "@/canvas/MagicCanvas.vue";
-  import { useMagicCanvas } from "@/canvas";
+  import { COLORS } from "@utils/sets/constants";
+  import MagicCanvas from "@canvas/MagicCanvas.vue";
+  import { useMagicCanvas } from "@canvas/index";
   import { useLabelGetter } from "./useLabel";
   import { useOverlaps } from "@/composables/useCalculateOverlaps";
   import { useCanvasFocus } from "@/composables/useCanvasFocus";
   import { useAllSections } from "@/composables/useAllSections";
+  import { cross } from "@/shapes/shapes/cross";
 
   const magic = useMagicCanvas();
 
@@ -55,6 +56,15 @@
 
   magic.draw.content.value = (ctx) => {
     draw(ctx, circles.value, overlaps.value, circleSectionsToHighlight.value);
+  };
+
+  magic.draw.backgroundPattern.value = (ctx, at) => {
+    cross({
+      at,
+      size: 14,
+      lineWidth: 1,
+      fillColor: "red",
+    }).draw(ctx);
   };
 
   watch(allSections, () => {

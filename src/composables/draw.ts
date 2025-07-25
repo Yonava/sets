@@ -1,8 +1,8 @@
 import type { Overlap, Circle, CircleLabel } from '@/types/types'
-import { COLORS } from '../utils/constants'
-import { getCircle } from '@/utils/circleUtils'
+import { COLORS } from '../utils/sets/constants'
+import { getCircle } from '@/utils/sets/circleUtils'
 
-export const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
+const drawCircleBackground = (ctx: CanvasRenderingContext2D, circle: Circle, isHighlighted: boolean) => {
   ctx.beginPath()
   ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false)
   ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;

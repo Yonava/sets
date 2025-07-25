@@ -1,7 +1,7 @@
 import type { Overlap, Circle } from '../types/types'
 import { computed, type Ref } from 'vue'
-import { isOverlapping } from '@/utils/circleUtils'
-import { COLORS } from '@/utils/constants'
+import { isOverlapping } from '@/utils/sets/circleUtils'
+import { COLORS } from '@/utils/sets/constants'
 
 const getOverlapsArray = (circles: Circle[]) => {
   const overlaps: Overlap[] = []
