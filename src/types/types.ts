@@ -6,11 +6,9 @@ export type Circle = {
   x: number,
   y: number,
   radius: number,
-  color: string,
 }
 
 export type Overlap = {
   id: number,
   circles: Circle['label'][],
-  color: string,
 }

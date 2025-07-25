@@ -58,7 +58,6 @@
   };
 
   watch(allSections, () => {
-    console.log(JSON.stringify(allSections.value));
     emits("sections-updated", allSections.value);
   });
 
