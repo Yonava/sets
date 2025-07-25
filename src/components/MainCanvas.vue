@@ -12,9 +12,10 @@
   import { COLORS } from "../utils/constants";
   import MagicCanvas from "@/canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@/canvas";
-  import { useAllSections, useCanvasFocus } from "./extras";
   import { useLabelGetter } from "./useLabel";
   import { useOverlaps } from "@/composables/useCalculateOverlaps";
+  import { useCanvasFocus } from "@/composables/useCanvasFocus";
+  import { useAllSections } from "@/composables/useAllSections";
 
   const magic = useMagicCanvas();
 
@@ -25,6 +26,12 @@
   const emits = defineEmits<{
     (e: "sections-updated", value: CircleLabel[][]): void;
   }>();
+
+  const circleSectionsToHighlight = computed(() => {
+    return props.sectionsToHighlight.filter((section) => {
+      return !(section.length === 1 && section[0] === "S");
+    });
+  });
 
   const { canvasFocused } = useCanvasFocus(magic.canvas);
 
@@ -47,10 +54,11 @@
   const allSections = useAllSections(circles, overlaps);
 
   magic.draw.content.value = (ctx) => {
-    draw(ctx, circles.value, overlaps.value, props.sectionsToHighlight);
+    draw(ctx, circles.value, overlaps.value, circleSectionsToHighlight.value);
   };
 
   watch(allSections, () => {
+    console.log(JSON.stringify(allSections.value));
     emits("sections-updated", allSections.value);
   });
 

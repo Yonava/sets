@@ -46,21 +46,20 @@ const highlightOverlappingAreas = (
   circles: Circle[],
   overlaps: Overlap[],
 ) => {
+  const sortedOverlaps = overlaps.toSorted((a, b) => b.circles.length - a.circles.length);
   // IMPORTANT for render order
   /*
     IMPORTANT thing here is that if you want regions that exclude others, render order matters. if you want
     something union with something but excluding something else, then put it behind those and have the stuff render on top of it.
   */
-  renderSelectedSections(selectedSections, circles, overlaps) // IMPORTANT has to be after overlaps get generated
-
-  const sortedOverlaps = overlaps.toSorted((a, b) => b.circles.length - a.circles.length);
+  colorSelectedSections(selectedSections, circles, sortedOverlaps) // IMPORTANT has to be after overlaps get generated
 
   for (const overlap of sortedOverlaps) {
     drawOverlappingAreas(ctx, circles, overlap)
   }
 }
 
-const renderSelectedSections = (
+const colorSelectedSections = (
   selectionsToHighlight: CircleLabel[][],
   circles: Circle[],
   overlaps: Overlap[],
@@ -91,12 +90,26 @@ const renderSelectedSections = (
   }
 }
 
+export const useCooldownLog = (frequencyMs = 1000) => {
+  let cooldown = false;
+  const log = (data: any) => {
+    if (cooldown) return;
+    console.log(data)
+    cooldown = true
+  }
+  setInterval(() => cooldown = false, frequencyMs)
+  return log
+}
+
+const log = useCooldownLog()
+
 export const draw = (
   ctx: CanvasRenderingContext2D,
   circles: Circle[],
   overlaps: Overlap[],
   selectedSections: CircleLabel[][]
 ) => {
+  // log(JSON.stringify(selectedSections))
   for (const circle of circles) {
     drawCircleBackground(ctx, circle)
   }
