@@ -1,5 +1,11 @@
 import type { Circle } from '../types/types'
 
+export const getCircle = (circles: Circle[], circleLabel: Circle['label']) => {
+  const circle = circles.find((c) => c.label === circleLabel)
+  if (!circle) throw 'circle missing in call to getCircle'
+  return circle
+}
+
 export const isInsideCircle = (x: number, y: number, circle: Circle) => {
   const dx = x - circle.x
   const dy = y - circle.y
@@ -10,8 +16,8 @@ export const isOnEdge = (x: number, y: number, circle: Circle) => {
   const dx = x - circle.x
   const dy = y - circle.y
   const distance = Math.sqrt(dx * dx + dy * dy)
-  return Math.abs(distance - circle.radius) < 10 // due to this 10 px buffer, this should always be 
-                                                 // checked first, otherwise isInsideCircle() will overlap some of this space
+  return Math.abs(distance - circle.radius) < 10 // due to this 10 px buffer, this should always be
+  // checked first, otherwise isInsideCircle() will overlap some of this space
 }
 
 export const isOverlapping = (circle1: Circle, circle2: Circle) => {

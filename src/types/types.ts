@@ -1,8 +1,8 @@
 
-export type CircleDisplayName = string
+export type CircleLabel = string
 
 export type Circle = {
-  id: CircleDisplayName,
+  label: CircleLabel,
   x: number,
   y: number,
   radius: number,
@@ -10,8 +10,7 @@ export type Circle = {
 }
 
 export type Overlap = {
-  id: string,
-  circles: Circle[],
+  id: number,
+  circles: Circle['label'][],
   color: string,
-  originalColor: string,
 }

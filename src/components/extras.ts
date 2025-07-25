@@ -39,8 +39,8 @@ export const useCanvasFocus = (canvas: MagicCanvasProps['canvas']) => {
  */
 export const useAllSections = (circles: Ref<Circle[]>, overlaps: Ref<Overlap[]>) => {
   return computed(() => {
-    const overlapsWithNames = overlaps.value.map(o => o.circles.map(c => c.id))
-    const circlesByThemselves = circles.value.map(c => c.id).map(id => [id])
+    const overlapsWithNames = overlaps.value.map(o => o.circles.map(c => c.label))
+    const circlesByThemselves = circles.value.map(c => c.label).map(id => [id])
 
     return [
       ...overlapsWithNames,

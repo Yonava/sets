@@ -2,7 +2,7 @@ import type { Circle } from '@/types/types';
 import type { Ref } from 'vue';
 
 const RESERVED = ['S', 'O', 'C', 'D', 'I', 'U']
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter((l) => RESERVED.includes(l))
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter((l) => !RESERVED.includes(l))
 
 /**
  * takes a list of labelled items and a sequence of labels and returns a function that will
@@ -20,7 +20,7 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter((l) => RESERVED.in
  *  console.log(newLabel); // 'A'
  */
 export const useLabelGetter = (labelledItems: Ref<Circle[]>, sequence = LETTERS) => () => {
-  let labels = labelledItems.value.map((c) => c.id);
+  let labels = labelledItems.value.map((c) => c.label);
 
   let timesAround = 0;
   let index = 0;

@@ -7,32 +7,29 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
-  import type { Circle, CircleDisplayName } from "../types/types";
-  import { drawCircles } from "../composables/useRenderCanvas";
-  import { highlightColor, backgroundColor } from "../utils/constants";
+  import type { Circle, CircleLabel } from "../types/types";
+  import { draw } from "../composables/draw";
+  import { COLORS } from "../utils/constants";
   import MagicCanvas from "@/canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@/canvas";
   import { useAllSections, useCanvasFocus } from "./extras";
   import { useLabelGetter } from "./useLabel";
+  import { useOverlaps } from "@/composables/useCalculateOverlaps";
 
   const magic = useMagicCanvas();
 
   const props = defineProps<{
-    sectionsToHighlight: CircleDisplayName[][];
+    sectionsToHighlight: CircleLabel[][];
   }>();
 
   const emits = defineEmits<{
-    (e: "sections-updated", value: CircleDisplayName[][]): void;
+    (e: "sections-updated", value: CircleLabel[][]): void;
   }>();
 
   const { canvasFocused } = useCanvasFocus(magic.canvas);
 
   const circles = ref<Circle[]>([]);
   const getCircleLabel = useLabelGetter(circles);
-
-  magic.draw.content.value = (ctx) => {
-    drawCircles(ctx, circles.value, props.sectionsToHighlight);
-  };
 
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
@@ -41,23 +38,30 @@
   });
 
   const canvasColor = computed(() => {
-    return entireSetSpaceHighlighted.value ? highlightColor : backgroundColor;
+    return entireSetSpaceHighlighted.value
+      ? COLORS.HIGHLIGHT
+      : COLORS.BACKGROUND;
   });
 
-  // const allSections = useAllSections(circles, overlaps);
+  const overlaps = useOverlaps(circles);
+  const allSections = useAllSections(circles, overlaps);
 
-  // watch(allSections, () => {
-  //   emits("sections-updated", allSections.value);
-  // });
+  magic.draw.content.value = (ctx) => {
+    draw(ctx, circles.value, overlaps.value, props.sectionsToHighlight);
+  };
+
+  watch(allSections, () => {
+    emits("sections-updated", allSections.value);
+  });
 
   const createCircle = () => {
     const { x, y } = magic.cursorCoordinates.value;
     circles.value.push({
-      id: getCircleLabel(),
+      label: getCircleLabel(),
       x,
       y,
       radius: 70,
-      color: backgroundColor,
+      color: COLORS.BACKGROUND,
     });
   };
 </script>

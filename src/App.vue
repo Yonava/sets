@@ -4,11 +4,11 @@
   import LatexButton from "./components/LatexButton.vue";
   import { setLatexToExpression, setParser } from "./expressionParser";
   import { ref, computed } from "vue";
-  import type { CircleDisplayName } from "./types/types";
+  import type { CircleLabel } from "./types/types";
 
   const latexInputString = ref("");
 
-  const allSections = ref<CircleDisplayName[][]>([]);
+  const allSections = ref<CircleLabel[][]>([]);
 
   const output = computed(() => {
     const expr = setLatexToExpression(latexInputString.value);
