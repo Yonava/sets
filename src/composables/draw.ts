@@ -28,14 +28,14 @@ const drawCircleName = (ctx: CanvasRenderingContext2D, circle: Circle) => {
 
 const drawOverlappingAreas = (ctx: CanvasRenderingContext2D, circles: Circle[], overlap: Overlap, isHighlighted: boolean) => {
   ctx.save()
-  // for (const circleLabel of overlap.circles) {
-  //   const { x, y, radius } = getCircle(circles, circleLabel)
-  //   ctx.beginPath()
-  //   ctx.arc(x, y, radius, 0, 2 * Math.PI)
-  //   ctx.clip()
-  // }
+  for (const circleLabel of overlap.circles) {
+    const { x, y, radius } = getCircle(circles, circleLabel)
+    ctx.beginPath()
+    ctx.arc(x, y, radius, 0, 2 * Math.PI)
+    ctx.clip()
+  }
 
-  ctx.fillStyle = 'blue';
+  ctx.fillStyle = isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.restore()
 }
@@ -55,7 +55,6 @@ const colorOverlappingAreas = (
   // IMPORTANT has to be after overlaps get generated
 
   for (const overlap of sortedOverlaps) {
-    log2(overlap.circles, highlightedOverlaps.has(overlap.id))
     drawOverlappingAreas(ctx, circles, overlap, highlightedOverlaps.has(overlap.id))
   }
 }
@@ -100,8 +99,8 @@ export const useCooldownLog = (frequencyMs = 1000) => {
   return log
 }
 
-const log = useCooldownLog()
-const log2 = useCooldownLog()
+// const log = useCooldownLog()
+// const log2 = useCooldownLog()
 
 export const draw = (
   ctx: CanvasRenderingContext2D,
@@ -114,16 +113,11 @@ export const draw = (
     highlightedOverlaps,
   } = getHighlightedSections(selectedSections, overlaps)
 
-  ctx.fillStyle = 'blue';
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  for (const circle of circles) {
+    drawCircleBackground(ctx, circle, highlightedCircles.has(circle.label))
+  }
 
-  // log(Array.from(highlightedOverlaps))
-
-  // colorOverlappingAreas(ctx, circles, overlaps, highlightedOverlaps)
-
-  // for (const circle of circles) {
-  //   drawCircleBackground(ctx, circle, highlightedCircles.has(circle.label))
-  // }
+  colorOverlappingAreas(ctx, circles, overlaps, highlightedOverlaps)
 
   for (const circle of circles) {
     drawCircleOutline(ctx, circle)

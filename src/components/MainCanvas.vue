@@ -63,7 +63,7 @@
       at,
       size: 14,
       lineWidth: 1,
-      fillColor: "red",
+      fillColor: "white",
     }).draw(ctx);
   };
 
