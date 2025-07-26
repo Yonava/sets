@@ -1,7 +1,7 @@
 import { onMounted, ref, type Ref } from "vue";
 import { getDevicePixelRatio } from "../camera/utils";
-import type { Coordinate } from "../types";
-import { getCtx } from "..";
+import type { Coordinate } from "@/shapes/types/utility";
+import { getCtx } from "@/utils/ctx";
 
 export const getCanvasTransform = (ctx: CanvasRenderingContext2D) => {
   const { a, e, f } = ctx.getTransform();

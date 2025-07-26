@@ -8,7 +8,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import type { Circle, CircleLabel } from "../types/types";
-  import { draw } from "../composables/draw";
+  import { draw } from "../other/draw";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
@@ -17,6 +17,7 @@
   import { useCanvasFocus } from "@/sets/composables/useCanvasFocus";
   import { useAllSections } from "@/sets/composables/useAllSections";
   import { cross } from "@/shapes/shapes/cross";
+  import { useCircleDrag } from "../composables/useSetCircleDrag";
 
   const magic = useMagicCanvas();
 
@@ -38,6 +39,8 @@
 
   const circles = ref<Circle[]>([]);
   const getCircleLabel = useLabelGetter(circles);
+
+  useCircleDrag(magic, circles);
 
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {

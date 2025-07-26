@@ -9,7 +9,7 @@ import type { CircleSchema } from '@/shapes/shapes/circle/types'
 const drawCircleBackground = (ctx: CanvasRenderingContext2D, circleProps: CircleSchema, isHighlighted: boolean) => {
   circle({
     ...circleProps,
-    fillColor: isHighlighted ? COLORS.HIGHLIGHT : 'transparent',
+    fillColor: isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND,
   }).draw(ctx)
 }
 
