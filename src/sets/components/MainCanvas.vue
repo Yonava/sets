@@ -7,12 +7,12 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
-  import type { Circle, CircleLabel } from "../types/types";
+  import type { Circle } from "../types/types.ts";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
-  import { useLabelGetter } from "./useLabel";
-  import { useOverlaps } from "@/sets/composables/useCalculateOverlaps";
+  import { useLabelGetter } from "../composables/useLabel";
+  import { useOverlaps } from "@/sets/composables/useOverlaps.js";
   import { useCanvasFocus } from "@/sets/composables/useCanvasFocus";
   import { useAllSections } from "@/sets/composables/useAllSections";
   import { cross } from "@/shapes/shapes/cross";
@@ -24,11 +24,11 @@
   const magicCanvas = useMagicCanvas();
 
   const props = defineProps<{
-    sectionsToHighlight: CircleLabel[][];
+    sectionsToHighlight: Circle["label"][][];
   }>();
 
   const emits = defineEmits<{
-    (e: "sections-updated", value: CircleLabel[][]): void;
+    (e: "sections-updated", value: Circle["label"][][]): void;
   }>();
 
   const circleSectionsToHighlight = computed(() => {

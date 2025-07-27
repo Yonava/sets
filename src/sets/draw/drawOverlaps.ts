@@ -52,12 +52,7 @@ export const colorOverlappingAreas = (
   props: ColorOverlappingAreasProps
 ) => {
   const { circles, overlaps, highlightedOverlaps } = props
-  const sortedOverlaps = overlaps.toSorted((a, b) => a.circles.length - b.circles.length);
-  /*
-    IMPORTANT thing here is that if you want regions that exclude others, render order matters. if you want
-    something union with something but excluding something else, then put it behind those and have the stuff render on top of it.
-  */
-  for (const overlap of sortedOverlaps) {
+  for (const overlap of overlaps) {
     drawOverlappingAreas(ctx, {
       circles,
       overlap,
