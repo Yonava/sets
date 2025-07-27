@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from "vue";
+  import { computed, onBeforeUnmount, ref, watch } from "vue";
   import type { Circle } from "../types/types.ts";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
@@ -20,6 +20,7 @@
   import { useCircleResize } from "../composables/useCircleResize";
   import { useCircleFocus } from "../composables/useCircleFocus";
   import { draw } from "../draw";
+  import keys from "ctrl-keys";
 
   const magicCanvas = useMagicCanvas();
 
@@ -53,7 +54,10 @@
     isResizing,
   });
 
-  const { isCircleFocused } = useCircleFocus({ magicCanvas, circles });
+  const { isCircleFocused, setFocus } = useCircleFocus({
+    magicCanvas,
+    circles,
+  });
 
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
@@ -93,12 +97,30 @@
   });
 
   const createCircle = () => {
-    circles.value.push({
+    const newCircle: Circle = {
       label: getCircleLabel(),
       at: magicCanvas.cursorCoordinates.value,
       radius: 70,
-    });
+    };
+    circles.value.push(newCircle);
+    setFocus(newCircle.label);
   };
+
+  const ctrlKeysHandler = keys();
+
+  ctrlKeysHandler.add("backspace", () => {
+    if (!canvasFocused.value) return;
+    deleteCircle();
+  });
+
+  const deleteCircle = () => {
+    circles.value = circles.value.filter((c) => !isCircleFocused(c.label));
+  };
+
+  document.addEventListener("keydown", ctrlKeysHandler.handle);
+  onBeforeUnmount(() => {
+    document.removeEventListener("keydown", ctrlKeysHandler.handle);
+  });
 </script>
 
 <style scoped>
