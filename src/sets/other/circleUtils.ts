@@ -16,8 +16,9 @@ export const isOnEdge = (x: number, y: number, circle: Circle) => {
   const dx = x - circle.at.x
   const dy = y - circle.at.y
   const distance = Math.sqrt(dx * dx + dy * dy)
-  return Math.abs(distance - circle.radius) < 10 // due to this 10 px buffer, this should always be
-  // checked first, otherwise isInsideCircle() will overlap some of this space
+  // due to the 10 px buffer, both `isInsideCircle` and `isOnEdge`
+  // can be true at the same time
+  return Math.abs(distance - circle.radius) < 10
 }
 
 export const isOverlapping = (circle1: Circle, circle2: Circle) => {

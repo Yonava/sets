@@ -1,6 +1,6 @@
 <template>
   <MagicCanvas
-    v-bind="magic.ref"
+    v-bind="magicCanvas.ref"
     @dblclick="createCircle"
   />
 </template>
@@ -17,9 +17,10 @@
   import { useCanvasFocus } from "@/sets/composables/useCanvasFocus";
   import { useAllSections } from "@/sets/composables/useAllSections";
   import { cross } from "@/shapes/shapes/cross";
-  import { useCircleDrag } from "../composables/useSetCircleDrag";
+  import { useCircleDrag } from "../composables/useCircleDrag";
+  import { useCircleResize } from "../composables/useCircleResize";
 
-  const magic = useMagicCanvas();
+  const magicCanvas = useMagicCanvas();
 
   const props = defineProps<{
     sectionsToHighlight: CircleLabel[][];
@@ -35,12 +36,21 @@
     });
   });
 
-  const { canvasFocused } = useCanvasFocus(magic.canvas);
+  const { canvasFocused } = useCanvasFocus(magicCanvas.canvas);
 
   const circles = ref<Circle[]>([]);
   const getCircleLabel = useLabelGetter(circles);
 
-  useCircleDrag(magic, circles);
+  const { isResizing } = useCircleResize({
+    magicCanvas,
+    circles,
+  });
+
+  useCircleDrag({
+    magicCanvas,
+    circles,
+    isResizing,
+  });
 
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
@@ -57,11 +67,11 @@
   const overlaps = useOverlaps(circles);
   const allSections = useAllSections(circles, overlaps);
 
-  magic.draw.content.value = (ctx) => {
+  magicCanvas.draw.content.value = (ctx) => {
     draw(ctx, circles.value, overlaps.value, circleSectionsToHighlight.value);
   };
 
-  magic.draw.backgroundPattern.value = (ctx, at, alpha) => {
+  magicCanvas.draw.backgroundPattern.value = (ctx, at, alpha) => {
     cross({
       at,
       size: 14,
@@ -77,7 +87,7 @@
   const createCircle = () => {
     circles.value.push({
       label: getCircleLabel(),
-      at: magic.cursorCoordinates.value,
+      at: magicCanvas.cursorCoordinates.value,
       radius: 70,
     });
   };

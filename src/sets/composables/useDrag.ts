@@ -1,7 +1,7 @@
 import type { MagicCanvasProps } from "@/canvas/types"
 import type { Coordinate } from "@/shapes/types/utility"
 import { MOUSE_BUTTONS } from "@/utils/mouse"
-import { onBeforeUnmount, ref, type UnwrapRef } from "vue"
+import { computed, onBeforeUnmount, ref, type UnwrapRef } from "vue"
 
 type ActiveDrag<T> = {
   startingCoords: Coordinate,
@@ -49,4 +49,9 @@ export const useDrag = <T>(
     document.removeEventListener('mousemove', drag)
     document.removeEventListener('mouseup', drop)
   })
+
+  return {
+    activeDrag,
+    isDragging: computed(() => !!activeDrag.value)
+  }
 }
