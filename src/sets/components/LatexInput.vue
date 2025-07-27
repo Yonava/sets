@@ -59,6 +59,7 @@
   };
 
   const renderLatexInInput = () => {
+    if (!latexInput.value) throw new Error("latex input not mounted");
     try {
       katex.render(latexString.value, latexInput.value);
       renderError.value = "";

@@ -1,8 +1,7 @@
 import type { CircleFocusControls } from "../composables/useCircleFocus"
 import type { Circle, Overlap } from "../types/types"
-import { drawCircleBackground, drawCircleLabel, drawCircleOutline } from "./drawCircles"
-import { colorOverlappingAreas } from "./drawOverlaps"
-
+import { drawCircleBackground, drawCircleLabel, drawCircleOutline } from "./circles"
+import { colorOverlappingAreas } from "./overlaps"
 
 type GetHighlightedSectionsProps = {
   selectedSections: Circle['label'][][],
