@@ -8,7 +8,6 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import type { Circle, CircleLabel } from "../types/types";
-  import { draw } from "../other/draw";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
@@ -19,6 +18,8 @@
   import { cross } from "@/shapes/shapes/cross";
   import { useCircleDrag } from "../composables/useCircleDrag";
   import { useCircleResize } from "../composables/useCircleResize";
+  import { useCircleFocus } from "../composables/useCircleFocus";
+  import { draw } from "../draw";
 
   const magicCanvas = useMagicCanvas();
 
@@ -52,6 +53,8 @@
     isResizing,
   });
 
+  const { isCircleFocused } = useCircleFocus({ magicCanvas, circles });
+
   const entireSetSpaceHighlighted = computed(() => {
     return props.sectionsToHighlight.some((section) => {
       return section.length === 1 && section[0] === "S";
@@ -68,7 +71,12 @@
   const allSections = useAllSections(circles, overlaps);
 
   magicCanvas.draw.content.value = (ctx) => {
-    draw(ctx, circles.value, overlaps.value, circleSectionsToHighlight.value);
+    draw(ctx, {
+      circles: circles.value,
+      overlaps: overlaps.value,
+      selectedSections: circleSectionsToHighlight.value,
+      isCircleFocused,
+    });
   };
 
   magicCanvas.draw.backgroundPattern.value = (ctx, at, alpha) => {
