@@ -1,14 +1,6 @@
-import {
-  computed,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  type Ref,
-} from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, type Ref } from "vue";
 import { isInsideCircle, isOnEdge } from "../other/circleUtils";
 import type { Circle } from "../types/types";
-import type { MagicCoords } from "@/canvas/coordinates";
 import type { MagicCanvasProps } from "@/canvas/types";
 
 export type CursorStyle =
