@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import LatexInput from "./sets/components/LatexInput.vue";
   import MainCanvas from "./sets/components/MainCanvas.vue";
   import LatexButton from "./sets/components/LatexButton.vue";
+  import MathField from "./sets/components/MathField.vue";
   import {
     setLatexToExpression,
     setParser,
@@ -51,11 +51,7 @@
     class="flex justify-center items-center w-screen"
   >
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
-      <LatexInput
-        v-model="latexInputString"
-        :transform="t"
-        :hotkeys="hotkeys"
-      />
+      <MathField v-model="latexInputString" />
 
       <LatexButton
         v-for="command in hotkeys"
