@@ -19,7 +19,6 @@ export const useMagicCanvas: UseMagicCanvas = (options = {}) => {
   const drawContent = ref<DrawContent>(() => { })
   const drawBackgroundPattern = ref<DrawPattern>(() => { })
 
-  // @ts-expect-error missing node namespace for some reason
   let repaintInterval: NodeJS.Timeout;
 
   onMounted(() => {

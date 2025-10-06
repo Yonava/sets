@@ -1,7 +1,8 @@
 
 import { getMagicCoordinates } from "./coordinates";
 import type { Camera } from "./camera";
-import type { Coordinate, DrawFns } from "./types";
+import type { DrawFns } from "./types";
+import type { Coordinate } from "@/shapes/types/utility";
 
 const STAGGER = 100
 

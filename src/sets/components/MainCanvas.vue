@@ -2,6 +2,7 @@
   <MagicCanvas
     v-bind="magicCanvas.ref"
     @dblclick="createCircle"
+    :style="{ cursor: cursorStyle }"
   />
 </template>
 
@@ -21,6 +22,7 @@
   import { useCircleFocus } from "../composables/useCircleFocus";
   import { draw } from "../draw";
   import keys from "ctrl-keys";
+  import { useCursorStyle } from "../composables/useCursorStyle.js";
 
   const magicCanvas = useMagicCanvas();
 
@@ -53,6 +55,8 @@
     circles,
     isResizing,
   });
+
+  const cursorStyle = useCursorStyle(circles, magicCanvas.cursorCoordinates)
 
   const { isCircleFocused, setFocus } = useCircleFocus({
     magicCanvas,
