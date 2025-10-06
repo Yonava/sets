@@ -5,12 +5,16 @@
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2021",
-    "lib": ["ES2021", "DOM"],
-
+    "target": "esnext",
+    "lib": ["ESNext", "DOM"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shape/*": ["./src/shapes/*"],
+      "@shapes/*": ["./src/shapes/shapes/*"],
+      "@canvas/*": ["./src/canvas/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   }
 }
