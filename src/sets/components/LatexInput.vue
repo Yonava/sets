@@ -1,24 +1,19 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { ref } from 'vue';
+import MathField from './MathField.vue';
 
-  const id = 'math-element-to-grab';
+  const content = ref('')
 
-  const test = ref<HTMLElement | null>(null)
-
+  const addCap = () => {
+    content.value += '\\cap'
+  }
 
   onMounted(() => {
-    test.value = document.getElementById(id)
-    console.log(test.value)
+      addCap()
   })
 </script>
 
 <template>
-  <math-field :id="id">x=\frac{-b\pm \sqrt{b^2-4ac}}{2a}</math-field>
+  <MathField style="width: full; height: full;" />
 </template>
-
-<style scoped>
-math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle) {
-  display: none;
-}
-</style>

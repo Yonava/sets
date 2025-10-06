@@ -55,7 +55,6 @@
         v-model="latexInputString"
         :transform="t"
         :hotkeys="hotkeys"
-        class="w-full rounded-md bg-white"
       />
 
       <LatexButton
