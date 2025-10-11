@@ -51,6 +51,10 @@
     class="flex justify-center items-center w-screen"
   >
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
+      <!-- <div class="pb-4 text-white">
+        {{ latexInputString || '[NONE]' }}
+      </div> -->
+
       <MathField v-model="latexInputString" />
 
       <LatexButton
