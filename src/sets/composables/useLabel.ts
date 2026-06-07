@@ -1,8 +1,7 @@
 import type { Circle } from '@/sets/types/types';
 import type { Ref } from 'vue';
 
-const RESERVED = ['S', 'O', 'C', 'D', 'I', 'U']
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter((l) => !RESERVED.includes(l))
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
 /**
  * takes a list of labelled items and a sequence of labels and returns a function that will
