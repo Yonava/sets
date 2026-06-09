@@ -8,10 +8,26 @@
   } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
+  import type { Token } from "./sets/types/types";
 
-  const latexInputString = ref("");
+  const latexInputRef = ref<InstanceType<typeof LatexInput> | null>(null)
+
+  const tokens = ref<Token[]>([]);
 
   const allSections = ref<CircleLabel[][]>([]);
+
+  const latexMap: Record<Token, string> = {
+    cup: '\\cup ',
+    cap: '\\cap ',
+    delta: '\\Delta ',
+    omega: '\\Omega ',
+    S: 'S',
+    'sup-c': '^c',
+  }
+
+  const latexInputString = computed(() =>
+    tokens.value.map(t => latexMap[t]).join("")
+  )
 
   const output = computed(() => {
     const expr = setLatexToExpression(latexInputString.value);
@@ -19,21 +35,18 @@
     try {
       return parse(expr);
     } catch (e) {
-      // could not parse
       return [];
     }
   });
 
-  const hotkeys = {
-    i: "\\cap ",
-    u: "\\cup ",
-    d: "\\Delta ",
-    o: "\\Omega ",
-    S: "S",
-    c: "^c",
+  const hotkeys: Record<string, Token> = {
+    i: "cap",
+    u: "cup",
+    d: "delta",
+    o: "omega",
+    s: "S",
+    c: "sup-c",
   };
-
-  const t = (c: string) => " " + c.toUpperCase();
 </script>
 
 <template>
@@ -52,16 +65,17 @@
   >
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
       <LatexInput
-        v-model="latexInputString"
-        :transform="t"
+        ref="latexInputRef"
+        v-model="tokens"
         :hotkeys="hotkeys"
         class="w-full rounded-md bg-white"
       />
 
       <LatexButton
-        v-for="command in hotkeys"
-        @click="latexInputString += command + ' '"
-        :label="command"
+        v-for="(token, key) in hotkeys"
+        :key="key"
+        @click="latexInputRef?.insertAtCursor(token)"
+        :label="token"
         class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
       />
     </div>

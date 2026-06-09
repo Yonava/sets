@@ -1,145 +1,83 @@
 <script setup lang="ts">
-  import katex from "katex";
-  import { ref, watch, onMounted } from "vue";
-  import { backspace } from "@/sets/other/latexInputBackspace";
+import { ref } from "vue";
+import Cursor from "./latexTextBox/Cursor.vue";
+import MathToken from "./latexTextBox/MathToken.vue";
+import type { Token } from "@/sets/types/types";
 
-  const props = defineProps<{
-    hotkeys: Record<string, string>;
-    transform: (c: string) => string;
-  }>();
+const props = defineProps<{
+  hotkeys: Record<string, Token>
+}>()
 
-  const latexString = defineModel<string>({ required: true });
+const tokens = defineModel<Token[]>({ required: true })
+const cursor = ref(0)
 
-  const latexInput = ref<HTMLDivElement | null>(null);
-  const renderError = ref("");
+const insertAtCursor = (token: Token) => {
+  tokens.value.splice(cursor.value, 0, token)
+  cursor.value++
+}
 
-  onMounted(() => {
-    if (!latexInput.value) return;
-
-    latexInput.value.addEventListener("keydown", inputKeyPressHandler);
-
-    latexInput.value.addEventListener("copy", (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      navigator.clipboard.writeText(latexString.value);
-    });
-
-    latexInput.value.addEventListener("paste", async (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      const t = await navigator.clipboard.readText();
-      latexString.value += t;
-    });
-
-    latexInput.value.addEventListener("cut", (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      navigator.clipboard.writeText(latexString.value);
-    });
-  });
-
-  const inputKeyPressHandler = (event: KeyboardEvent) => {
-    event.preventDefault();
-
-    if (event.key === "Backspace") {
-      return (latexString.value = backspace(latexString.value));
+const onKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'ArrowLeft') {
+    cursor.value = Math.max(0, cursor.value - 1)
+    e.preventDefault()
+    return
+  }
+  if (e.key === 'ArrowRight') {
+    cursor.value = Math.min(tokens.value.length, cursor.value + 1)
+    e.preventDefault()
+    return
+  }
+  if (e.key === 'Backspace') {
+    if (cursor.value > 0) {
+      tokens.value.splice(cursor.value - 1, 1)
+      cursor.value--
     }
+    e.preventDefault()
+    return
+  }
+  const token = props.hotkeys[e.key.toLowerCase()]
+  if (token) {
+    insertAtCursor(token)
+    e.preventDefault()
+  }
+}
 
-    if (event.key.length > 1) {
-      return;
-    }
-
-    // hotkeys tied to latex commands
-    if (props.hotkeys[event.key]) {
-      latexString.value += props.hotkeys[event.key];
-      return;
-    }
-
-    latexString.value += props.transform(event.key);
-  };
-
-  const renderLatexInInput = () => {
-    if (!latexInput.value) throw new Error("latex input not mounted");
-    try {
-      katex.render(latexString.value, latexInput.value);
-      renderError.value = "";
-    } catch (e) {
-      renderError.value = "Invalid LaTeX";
-    }
-  };
-
-  const setLatexInputFocus = (state: boolean) => {
-    if (!latexInput.value) return;
-
-    if (state) {
-      latexInput.value.classList.add("input-field");
-      latexInput.value.classList.remove("input-field-inactive");
-      latexInput.value.focus();
-    } else {
-      latexInput.value.classList.remove("input-field");
-      latexInput.value.classList.add("input-field-inactive");
-    }
-  };
-
-  watch(latexString, (newStr, oldStr) => {
-    renderLatexInInput();
-    if (newStr.length > oldStr.length) {
-      setLatexInputFocus(true);
-    }
-  });
+defineExpose({ insertAtCursor })
 </script>
 
 <template>
   <div
+    class="text-box"
     tabindex="0"
-    class="input-field-inactive text-box"
-    @focus="setLatexInputFocus(true)"
-    @blur="setLatexInputFocus(false)"
-    ref="latexInput"
-  ></div>
+    @keydown="onKeyDown"
+  >
+    <Cursor v-if="cursor === 0" />
+
+    <template
+      v-for="(token, i) in tokens"
+      :key="i"
+    >
+      <MathToken :token="token" />
+      <Cursor v-if="cursor === i + 1" />
+    </template>
+  </div>
 </template>
 
 <style scoped>
-  @keyframes cursor {
-    0% {
-      opacity: 0;
-    }
-    1% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 1;
-    }
-    51% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
+.text-box {
+  min-height: 38px;
+  padding: 6px 12px;
+  cursor: text;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  background: white;
+}
 
-  .text-box {
-    height: 30px;
-    padding: 3px;
-    padding-left: 10px;
-    cursor: text;
-  }
-
-  .input-field:focus {
-    outline: none;
-  }
-
-  .input-field-inactive {
-    background: #e2dcdc;
-  }
-
-  .input-field::after {
-    content: "";
-    position: absolute;
-    width: 1px;
-    height: 20px;
-    background-color: black;
-    margin-left: 1px;
-    animation: cursor 1s infinite;
-  }
+.text-box:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
 </style>
