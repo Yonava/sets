@@ -44,7 +44,7 @@ onMounted(() => {
       return;
     }
 
-    const latex = props.hotkeys[event.key];
+    const latexString = props.hotkeys[event.key];
 
     if (event.key.length !== 1) {
     return;
@@ -59,12 +59,12 @@ onMounted(() => {
   ]);
   }
 
-    if (latex) {
+    if (latexString) {
       event.preventDefault();
 
       mf.executeCommand([
         "insert",
-        latex
+        latexString
       ]);
 
       return;
