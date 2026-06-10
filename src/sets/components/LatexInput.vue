@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import "mathlive";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 import type { MathfieldElement } from "mathlive";
 
 const props = defineProps<{
   hotkeys: Record<string, string>;
-  transform: (c: string) => string;
 }>();
 
 const latexString = defineModel<string>({
@@ -14,62 +13,57 @@ const latexString = defineModel<string>({
 
 const latexInput = ref<MathfieldElement | null>(null);
 
-onMounted(() => {
-  const mf = latexInput.value;
+const onInput = () => {
+  latexString.value = latexInput.value!.getValue();
+};
 
-  if (!mf) return;
+const onKeydown = (event: Event) => {
+  const keyEvent = event as KeyboardEvent;
 
-  mf.addEventListener("input", () => {
-    latexString.value = mf.getValue();
-  });
-
-  mf.setValue(latexString.value);
-
-  // prevents input from losing focus when clicking outside of the input
-  mf.addEventListener("blur", () => {
-    setTimeout(() => mf.focus(), 0);
-  });
-
-  watch(latexString, (val) => {
-    if (mf.getValue() !== val) mf.setValue(val);
-  });
-
-  mf.addEventListener("keydown", (event) => {
-
-    if (
-      event.ctrlKey ||
-      event.metaKey ||
-      event.altKey
-    ) {
-      return;
-    }
-
-    const latexString = props.hotkeys[event.key];
-
-    if (event.key.length !== 1) {
+  if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) {
     return;
   }
 
-  event.preventDefault();
-
-  if (!(event.key in props.hotkeys)) {
-    mf.executeCommand([
-    "insert",
-    event.key.toUpperCase()
-  ]);
+  if (keyEvent.key.length !== 1) {
+    return;
   }
 
-    if (latexString) {
-      event.preventDefault();
+  keyEvent.preventDefault();
 
-      mf.executeCommand([
-        "insert",
-        latexString
-      ]);
+  const hotkeyLatex = props.hotkeys[keyEvent.key];
 
-      return;
-    }
+  if (hotkeyLatex) {
+    latexInput.value!.executeCommand(["insert", hotkeyLatex]);
+    return;
+  }
+
+  if (!(keyEvent.key in props.hotkeys)) {
+    latexInput.value!.executeCommand(["insert", keyEvent.key.toUpperCase()]);
+  }
+};
+
+onMounted(() => {
+  const mathField = latexInput.value;
+
+  if (!mathField) return;
+
+  mathField.addEventListener("input", onInput);
+  mathField.setValue(latexString.value);
+
+  watch(latexString, (val) => {
+    if (mathField.getValue() !== val) mathField.setValue(val);
   });
+
+  mathField.addEventListener("keydown", onKeydown);
+});
+
+onUnmounted(() => {
+  const mathField = latexInput.value;
+
+  if (!mathField) return;
+
+  mathField.removeEventListener("input", onInput);
+  mathField.removeEventListener("keydown", onKeydown);
 });
 </script>
 
@@ -90,9 +84,7 @@ math-field::part(menu-toggle) {
   display: none;
 }
 
-math-field:focus {
-  border: none;
-  outline: none;
-  box-shadow: none;
+math-field {
+  height: 2em;
 }
 </style>

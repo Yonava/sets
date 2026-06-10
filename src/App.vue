@@ -32,8 +32,6 @@
     S: "S",
     c: "^{c}",
   };
-
-  const t = (c: string) => " " + c.toUpperCase();
 </script>
 
 <template>
@@ -53,7 +51,6 @@
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
       <LatexInput
         v-model="latexInputString"
-        :transform="t"
         :hotkeys="hotkeys"
         class="w-full rounded-md bg-white"
       />
