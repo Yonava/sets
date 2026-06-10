@@ -18,6 +18,7 @@ const onInput = () => {
 };
 
 const onKeydown = (event: Event) => {
+  
   const keyEvent = event as KeyboardEvent;
 
   if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) {
@@ -25,14 +26,6 @@ const onKeydown = (event: Event) => {
   }
 
   if (keyEvent.key.length !== 1) {
-    return;
-  }
-
-  const hotkeyLatex = props.hotkeys[keyEvent.key];
-
-  if (hotkeyLatex) {
-    keyEvent.preventDefault();
-    latexInput.value!.executeCommand(["insert", hotkeyLatex]);
     return;
   }
 
@@ -47,8 +40,12 @@ onMounted(() => {
 
   if (!mathField) return;
 
+    mathField.inlineShortcuts = {
+      ...mathField.inlineShortcuts,
+      ...props.hotkeys,
+    }
+
   mathField.addEventListener("input", onInput);
-  mathField.setValue(latexString.value);
 
   watch(latexString, (val) => {
     if (mathField.getValue() !== val) mathField.setValue(val);

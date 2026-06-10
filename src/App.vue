@@ -8,6 +8,7 @@
   } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
+  import { ComputeEngine } from '@cortex-js/compute-engine';
 
   const latexInputString = ref("");
 
@@ -24,14 +25,22 @@
     }
   });
 
+const computeEngine = new ComputeEngine();
+
+const latexMathJSON = computed(() => {
+  return computeEngine.parse(latexInputString.value);
+});
+
   const hotkeys = {
-    i: "\\cap ",
-    u: "\\cup ",
-    d: "\\Delta ",
-    o: "\\Omega ",
+    i: "\\cap",
+    u: "\\cup",
+    d: "\\triangle",
+    o: "\\Omega",
     S: "S",
-    c: "^{c}",
+    c: "^\\complement",
+    '\\': '\\setminus'
   };
+
 </script>
 
 <template>
@@ -54,6 +63,7 @@
         :hotkeys="hotkeys"
         class="w-full rounded-md bg-white"
       />
+{{ latexMathJSON }}
       <LatexButton
         v-for="command in hotkeys"
         @click="latexInputString += command + ' '"
