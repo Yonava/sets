@@ -28,16 +28,16 @@ const onKeydown = (event: Event) => {
     return;
   }
 
-  keyEvent.preventDefault();
-
   const hotkeyLatex = props.hotkeys[keyEvent.key];
 
   if (hotkeyLatex) {
+    keyEvent.preventDefault();
     latexInput.value!.executeCommand(["insert", hotkeyLatex]);
     return;
   }
 
-  if (!(keyEvent.key in props.hotkeys)) {
+  if (!(keyEvent.key in props.hotkeys) && /^[a-zA-Z]$/.test(keyEvent.key)) {
+    keyEvent.preventDefault();
     latexInput.value!.executeCommand(["insert", keyEvent.key.toUpperCase()]);
   }
 };

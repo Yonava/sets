@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@cortex-js/compute-engine": "^0.58.0",
     "@vueuse/core": "^13.5.0",
     "ctrl-keys": "^1.0.6",
     "katex": "^0.16.10",
