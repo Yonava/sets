@@ -25,6 +25,11 @@ onMounted(() => {
 
   mf.setValue(latexString.value);
 
+  // prevents input from losing focus when clicking outside of the input
+  mf.addEventListener("blur", () => {
+    setTimeout(() => mf.focus(), 0);
+  });
+
   watch(latexString, (val) => {
     if (mf.getValue() !== val) mf.setValue(val);
   });
@@ -83,5 +88,11 @@ onMounted(() => {
 }
 math-field::part(menu-toggle) {
   display: none;
+}
+
+math-field:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 </style>
