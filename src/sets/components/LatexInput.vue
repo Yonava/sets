@@ -70,3 +70,14 @@ onMounted(() => {
     class="text-box"
   />
 </template>
+
+<style scoped>
+@media not (pointer: coarse) {
+  math-field::part(virtual-keyboard-toggle) {
+    display: none;
+  }
+}
+math-field::part(menu-toggle) {
+  display: none;
+}
+</style>
