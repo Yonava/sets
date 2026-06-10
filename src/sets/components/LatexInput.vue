@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import "mathlive";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import type { MathfieldElement } from "mathlive";
 
 const props = defineProps<{
@@ -24,6 +24,10 @@ onMounted(() => {
   });
 
   mf.setValue(latexString.value);
+
+  watch(latexString, (val) => {
+    if (mf.getValue() !== val) mf.setValue(val);
+  });
 
   mf.addEventListener("keydown", (event) => {
 
