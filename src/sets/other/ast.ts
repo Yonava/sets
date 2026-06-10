@@ -78,11 +78,11 @@ export const buildAST = (postfix: Token[]): ASTNode => {
 
 export const tokenize = (input: string): Token[] => {
   const tokens: Token[] = [];
-  const regex = /\s*(\^c|[a-zA-Z]+|[0|1|2|/]|[()])\s*/g;
+  const regex = /\s*(\^\{c\}|[a-zA-Z]+|[0|1|2|/]|[()])\s*/g;
   let match;
 
   while ((match = regex.exec(input)) !== null) {
-    if (match[1] === '^c') {
+    if (match[1] === '^{c}') {
       tokens.push({ type: 'OPERATOR', value: 'c' });
     } else if (/[a-zA-Z]+/.test(match[1])) {
       tokens.push({ type: 'OPERAND', value: match[1] });

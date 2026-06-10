@@ -30,7 +30,7 @@
     d: "\\Delta ",
     o: "\\Omega ",
     S: "S",
-    c: "^c",
+    c: "^{c}",
   };
 
   const t = (c: string) => " " + c.toUpperCase();
@@ -57,7 +57,6 @@
         :hotkeys="hotkeys"
         class="w-full rounded-md bg-white"
       />
-
       <LatexButton
         v-for="command in hotkeys"
         @click="latexInputString += command + ' '"
