@@ -65,7 +65,6 @@ const latexMathJSON = computed(() => {
         :hotkeys="hotkeys"
         class="w-full rounded-md bg-white"
       />
-{{ latexMathJSON }}
       <LatexButton
         v-for="command in hotkeys"
         @click="latexInputString += command + ' '"
