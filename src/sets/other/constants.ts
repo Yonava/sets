@@ -18,12 +18,13 @@ export const KEY_TO_LATEX = {
     '\\': '\\setminus'
   }as const
 
-  export const LATEX_SET_OPERATIONS = {
+  export const LATEX_SET_SYMBOLS = {
     SET_MINUS: 'SetMinus',
     UNION: 'Union',
     INTERSECTION: 'Intersection',
     SYMMETRIC_DIFFERENCE: 'SymmetricDifference',
-    COMPLEMENT: 'Complement'
+    COMPLEMENT: 'Complement',
+    OMEGA: 'Omega',
   }
 
-  export type LatexSetOperation = typeof LATEX_SET_OPERATIONS[keyof typeof LATEX_SET_OPERATIONS]
+  export type LatexSetOperation = typeof LATEX_SET_SYMBOLS[keyof typeof LATEX_SET_SYMBOLS]
