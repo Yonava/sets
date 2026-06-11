@@ -72,7 +72,7 @@ math-field::part(menu-toggle) {
 }
 
 math-field {
-  min-height: 2em;
+  min-height: 2.1em;
   --contains-highlight-background-color: rgb(200, 200, 200);
   --contains-highlight-color: rgb(45, 45, 45);
 }
