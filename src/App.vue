@@ -22,11 +22,12 @@
 
 const computeEngine = new ComputeEngine();
 
-// make sure that all upper case chars are treated as sets in the compute engine
+// make sure that all upper case chars and Omega are treated as sets in the compute engine
 // otherwise might not interpret correctly and throw error even for correct syntax
 for (let i = 65; i <= 90; i++) {
   computeEngine.declare(String.fromCharCode(i), "set");
 }
+computeEngine.declare('Omega', 'set');
 
 const latexMathJSON = computed(() => {
   return computeEngine.parse(latexInputString.value);
