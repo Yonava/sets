@@ -2,38 +2,28 @@
   import LatexInput from "./sets/components/LatexInput.vue";
   import MainCanvas from "./sets/components/MainCanvas.vue";
   import LatexButton from "./sets/components/LatexButton.vue";
-  import {
-    setLatexToExpression,
-    setParser,
-  } from "./sets/other/expressionParser";
+  import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
+  import { useMathJSON } from "./sets/composables/useMathJSON";
+  import { KEY_TO_LATEX } from "./sets/other/constants";
+
 
   const latexInputString = ref("");
 
   const allSections = ref<CircleLabel[][]>([]);
 
-  const output = computed(() => {
-    const expr = setLatexToExpression(latexInputString.value);
+  const mathJSON = useMathJSON(latexInputString);
+
+  const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
+    if (!mathJSON.value) return [];
     try {
-      return parse(expr);
+      return parse(mathJSON.value.json);
     } catch (e) {
-      // could not parse
       return [];
     }
   });
-
-  const hotkeys = {
-    i: "\\cap ",
-    u: "\\cup ",
-    d: "\\Delta ",
-    o: "\\Omega ",
-    S: "S",
-    c: "^c",
-  };
-
-  const t = (c: string) => " " + c.toUpperCase();
 </script>
 
 <template>
@@ -44,7 +34,7 @@
   </div>
   <MainCanvas
     @sections-updated="(newAllSections) => (allSections = newAllSections)"
-    :sections-to-highlight="output"
+    :sections-to-highlight="activeSubsets"
   />
   <div
     style="position: absolute; bottom: 0; z-index: 2"
@@ -53,15 +43,13 @@
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
       <LatexInput
         v-model="latexInputString"
-        :transform="t"
-        :hotkeys="hotkeys"
+        :hotkeys="KEY_TO_LATEX"
         class="w-full rounded-md bg-white"
       />
-
       <LatexButton
-        v-for="command in hotkeys"
-        @click="latexInputString += command + ' '"
-        :label="command"
+        v-for="key in KEY_TO_LATEX"
+        @click="latexInputString += key + ' '"
+        :label="key"
         class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
       />
     </div>

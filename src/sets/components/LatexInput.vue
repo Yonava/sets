@@ -1,145 +1,82 @@
 <script setup lang="ts">
-  import katex from "katex";
-  import { ref, watch, onMounted } from "vue";
-  import { backspace } from "@/sets/other/latexInputBackspace";
+import "mathlive";
+import { ref, onMounted, onUnmounted } from "vue";
+import type { MathfieldElement } from "mathlive";
 
-  const props = defineProps<{
-    hotkeys: Record<string, string>;
-    transform: (c: string) => string;
-  }>();
+const props = defineProps<{
+  hotkeys: Record<string, string>;
+}>();
 
-  const latexString = defineModel<string>({ required: true });
+const latexString = defineModel<string>({
+  required: true,
+});
 
-  const latexInput = ref<HTMLDivElement | null>(null);
-  const renderError = ref("");
+const latexInput = ref<MathfieldElement | null>(null);
 
-  onMounted(() => {
-    if (!latexInput.value) return;
+const onInput = () => {
+  if (!latexInput.value) return;
+  latexString.value = latexInput.value.getValue();
+};
 
-    latexInput.value.addEventListener("keydown", inputKeyPressHandler);
+const onKeydown = (event: KeyboardEvent) => {
+  
+  const keyEvent = event;
+  const isAlphabetical = /^[a-zA-Z]$/.test(keyEvent.key);
 
-    latexInput.value.addEventListener("copy", (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      navigator.clipboard.writeText(latexString.value);
-    });
+  if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) return;
+  if (keyEvent.key.length !== 1) return;
+  if (!isAlphabetical) return
+  if (keyEvent.key in props.hotkeys) return;
+  
+  keyEvent.preventDefault();
+  latexInput.value!.executeCommand(["insert", keyEvent.key.toUpperCase()]);
+};
 
-    latexInput.value.addEventListener("paste", async (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      const t = await navigator.clipboard.readText();
-      latexString.value += t;
-    });
+onMounted(() => {
+  const mathField = latexInput.value;
 
-    latexInput.value.addEventListener("cut", (event) => {
-      event.preventDefault();
-      latexString.value = latexString.value.slice(0, -1);
-      navigator.clipboard.writeText(latexString.value);
-    });
-  });
+  if (!mathField) return;
 
-  const inputKeyPressHandler = (event: KeyboardEvent) => {
-    event.preventDefault();
-
-    if (event.key === "Backspace") {
-      return (latexString.value = backspace(latexString.value));
+    mathField.inlineShortcuts = {
+      ...mathField.inlineShortcuts,
+      ...props.hotkeys,
     }
 
-    if (event.key.length > 1) {
-      return;
-    }
+  mathField.addEventListener("input", onInput);
+  mathField.addEventListener("keydown", onKeydown);
+});
 
-    // hotkeys tied to latex commands
-    if (props.hotkeys[event.key]) {
-      latexString.value += props.hotkeys[event.key];
-      return;
-    }
+onUnmounted(() => {
+  const mathField = latexInput.value;
 
-    latexString.value += props.transform(event.key);
-  };
+  if (!mathField) return;
 
-  const renderLatexInInput = () => {
-    if (!latexInput.value) throw new Error("latex input not mounted");
-    try {
-      katex.render(latexString.value, latexInput.value);
-      renderError.value = "";
-    } catch (e) {
-      renderError.value = "Invalid LaTeX";
-    }
-  };
-
-  const setLatexInputFocus = (state: boolean) => {
-    if (!latexInput.value) return;
-
-    if (state) {
-      latexInput.value.classList.add("input-field");
-      latexInput.value.classList.remove("input-field-inactive");
-      latexInput.value.focus();
-    } else {
-      latexInput.value.classList.remove("input-field");
-      latexInput.value.classList.add("input-field-inactive");
-    }
-  };
-
-  watch(latexString, (newStr, oldStr) => {
-    renderLatexInInput();
-    if (newStr.length > oldStr.length) {
-      setLatexInputFocus(true);
-    }
-  });
+  mathField.removeEventListener("input", onInput);
+  mathField.removeEventListener("keydown", onKeydown);
+});
 </script>
 
 <template>
-  <div
-    tabindex="0"
-    class="input-field-inactive text-box"
-    @focus="setLatexInputFocus(true)"
-    @blur="setLatexInputFocus(false)"
+   <math-field
     ref="latexInput"
-  ></div>
+    class="text-box"
+  />
 </template>
 
 <style scoped>
-  @keyframes cursor {
-    0% {
-      opacity: 0;
-    }
-    1% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 1;
-    }
-    51% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 0;
-    }
+@media not (pointer: coarse) {
+  math-field::part(virtual-keyboard-toggle) {
+    display: none;
   }
+}
 
-  .text-box {
-    height: 30px;
-    padding: 3px;
-    padding-left: 10px;
-    cursor: text;
-  }
+math-field::part(menu-toggle) {
+  display: none;
+}
 
-  .input-field:focus {
-    outline: none;
-  }
-
-  .input-field-inactive {
-    background: #e2dcdc;
-  }
-
-  .input-field::after {
-    content: "";
-    position: absolute;
-    width: 1px;
-    height: 20px;
-    background-color: black;
-    margin-left: 1px;
-    animation: cursor 1s infinite;
-  }
+math-field {
+  min-height: 2.1em;
+  --contains-highlight-background-color: rgb(200, 200, 200);
+  --contains-highlight-color: rgb(45, 45, 45);
+}
 </style>
