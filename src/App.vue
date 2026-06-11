@@ -27,6 +27,10 @@
 
 const computeEngine = new ComputeEngine();
 
+for (let i = 65; i <= 90; i++) {
+  computeEngine.declare(String.fromCharCode(i), "set");
+}
+
 const latexMathJSON = computed(() => {
   return computeEngine.parse(latexInputString.value);
 });
