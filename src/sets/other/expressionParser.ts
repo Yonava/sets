@@ -1,8 +1,5 @@
 import type { MathJsonExpression } from '@cortex-js/compute-engine'
 
-// [a] => a excluding all other sets
-// [a, b] => a intersection b excluding all other sets
-// [a, b, c] => a intersection b intersection c excluding all other sets
 type Subset = string[]
 
 const setParser = (partition: Subset[]) => {

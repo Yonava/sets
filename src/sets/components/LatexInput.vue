@@ -21,13 +21,8 @@ const onKeydown = (event: Event) => {
   
   const keyEvent = event as KeyboardEvent;
 
-  if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) {
-    return;
-  }
-
-  if (keyEvent.key.length !== 1) {
-    return;
-  }
+  if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) return;
+  if (keyEvent.key.length !== 1) return;
 
   if (!(keyEvent.key in props.hotkeys) && /^[a-zA-Z]$/.test(keyEvent.key)) {
     keyEvent.preventDefault();
@@ -46,11 +41,6 @@ onMounted(() => {
     }
 
   mathField.addEventListener("input", onInput);
-
-  watch(latexString, (val) => {
-    if (mathField.getValue() !== val) mathField.setValue(val);
-  });
-
   mathField.addEventListener("keydown", onKeydown);
 });
 
