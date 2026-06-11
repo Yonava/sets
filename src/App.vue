@@ -2,10 +2,7 @@
   import LatexInput from "./sets/components/LatexInput.vue";
   import MainCanvas from "./sets/components/MainCanvas.vue";
   import LatexButton from "./sets/components/LatexButton.vue";
-  import {
-    setLatexToExpression,
-    setParser,
-  } from "./sets/other/expressionParser";
+  import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
   import { ComputeEngine } from '@cortex-js/compute-engine';
@@ -15,18 +12,18 @@
   const allSections = ref<CircleLabel[][]>([]);
 
   const output = computed(() => {
-    const expr = setLatexToExpression(latexInputString.value);
     const parse = setParser(allSections.value);
     try {
-      return parse(expr);
+      return parse(latexMathJSON.value?.json ?? null);
     } catch (e) {
-      // could not parse
       return [];
     }
   });
 
 const computeEngine = new ComputeEngine();
 
+// make sure that all upper case chars are treated as sets in the compute engine
+// otherwise might not interpret correctly and throw error even for correct syntax
 for (let i = 65; i <= 90; i++) {
   computeEngine.declare(String.fromCharCode(i), "set");
 }
