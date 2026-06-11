@@ -11,12 +11,12 @@ const latexString = defineModel<string>({
   required: true,
 });
 
-const insert = (latex: string) => {
+const insertIntoLatexString = (latex: string) => {
   if (!latexInput.value) return;
   latexInput.value.executeCommand(["insert", latex]);
 };
 
-defineExpose({ insert })
+defineExpose({ insertIntoLatexString })
 
 const latexInput = ref<MathfieldElement | null>(null);
 

@@ -14,7 +14,7 @@
 
   const insertLatexSymbol = (symbol: string) => {
     if (!latexInputRef.value) return;
-    latexInputRef.value.insert(symbol);
+    latexInputRef.value.insertIntoLatexString(symbol);
   };
 
   const allSections = ref<CircleLabel[][]>([]);
