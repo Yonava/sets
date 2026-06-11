@@ -8,7 +8,7 @@ export const COLORS = {
 
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
-export const KEYBOARD_TO_LATEX = {
+export const KEY_TO_LATEX = {
     i: "\\cap",
     u: "\\cup",
     d: "\\triangle",

@@ -6,7 +6,7 @@
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
   import { useMathJSON } from "./sets/composables/useMathJSON";
-  import { KEYBOARD_TO_LATEX } from "./sets/other/constants";
+  import { KEY_TO_LATEX } from "./sets/other/constants";
 
 
   const latexInputString = ref("");
@@ -43,13 +43,13 @@
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
       <LatexInput
         v-model="latexInputString"
-        :hotkeys="KEYBOARD_TO_LATEX"
+        :hotkeys="KEY_TO_LATEX"
         class="w-full rounded-md bg-white"
       />
       <LatexButton
-        v-for="command in KEYBOARD_TO_LATEX"
-        @click="latexInputString += command + ' '"
-        :label="command"
+        v-for="key in KEY_TO_LATEX"
+        @click="latexInputString += key + ' '"
+        :label="key"
         class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
       />
     </div>
