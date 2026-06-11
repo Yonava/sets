@@ -1,6 +1,7 @@
 import { computed, type Ref } from 'vue';
 import {ALPHABET } from '../other/constants';
 import { ComputeEngine } from '@cortex-js/compute-engine';
+import { LATEX_SET_SYMBOLS } from '../other/constants';
 
 /*
 
@@ -14,7 +15,7 @@ const createComputeEngine = () => {
   for (const letter of ALPHABET) {
     computeEngine.declare(letter, "set");
   }
-  computeEngine.declare('Omega', 'set');
+  computeEngine.declare(LATEX_SET_SYMBOLS.OMEGA, "set");
   return computeEngine;
 }
 
