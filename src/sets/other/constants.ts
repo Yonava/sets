@@ -5,3 +5,5 @@ export const COLORS = {
   CIRCLE_OUTLINE: '#8d99ae',
   CIRCLE_FOCUSED: '#edf2f4',
 }
+
+export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')

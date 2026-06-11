@@ -5,29 +5,20 @@
   import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
-  import { ComputeEngine } from '@cortex-js/compute-engine';
+  import { useMathJSON } from "./sets/composables/useMathJSON";
+
 
   const latexInputString = ref("");
 
   const allSections = ref<CircleLabel[][]>([]);
 
-  const computeEngine = new ComputeEngine();
-
-  // make sure that all upper case chars and Omega are treated as sets in the compute engine
-  // otherwise might not interpret correctly and throw error even for correct syntax
-  for (let i = 65; i <= 90; i++) {
-    computeEngine.declare(String.fromCharCode(i), "set");
-  }
-  computeEngine.declare('Omega', 'set');
-
-  const latexMathJSON = computed(() => {
-    return computeEngine.parse(latexInputString.value);
-  });
+  const mathJSON = useMathJSON(latexInputString);
 
   const output = computed(() => {
     const parse = setParser(allSections.value);
+    if (!mathJSON.value) return [];
     try {
-      return parse(latexMathJSON.value?.json ?? null);
+      return parse(mathJSON.value.json);
     } catch (e) {
       return [];
     }

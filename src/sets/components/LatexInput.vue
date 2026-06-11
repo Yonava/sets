@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import "mathlive";
-import { ref, onMounted, watch, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import type { MathfieldElement } from "mathlive";
 
 const props = defineProps<{
@@ -14,20 +14,22 @@ const latexString = defineModel<string>({
 const latexInput = ref<MathfieldElement | null>(null);
 
 const onInput = () => {
-  latexString.value = latexInput.value!.getValue();
+  if (!latexInput.value) return;
+  latexString.value = latexInput.value.getValue();
 };
 
-const onKeydown = (event: Event) => {
+const onKeydown = (event: KeyboardEvent) => {
   
-  const keyEvent = event as KeyboardEvent;
+  const keyEvent = event;
+  const isAlphabetical = /^[a-zA-Z]$/.test(keyEvent.key);
 
   if (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey) return;
   if (keyEvent.key.length !== 1) return;
-
-  if (!(keyEvent.key in props.hotkeys) && /^[a-zA-Z]$/.test(keyEvent.key)) {
-    keyEvent.preventDefault();
-    latexInput.value!.executeCommand(["insert", keyEvent.key.toUpperCase()]);
-  }
+  if (!isAlphabetical) return
+  if (keyEvent.key in props.hotkeys) return;
+  
+  keyEvent.preventDefault();
+  latexInput.value!.executeCommand(["insert", keyEvent.key.toUpperCase()]);
 };
 
 onMounted(() => {
@@ -67,6 +69,7 @@ onUnmounted(() => {
     display: none;
   }
 }
+
 math-field::part(menu-toggle) {
   display: none;
 }
