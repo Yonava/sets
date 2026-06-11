@@ -10,6 +10,7 @@
 
 
   const latexInputString = ref("");
+  const latexInputRef = ref<InstanceType<typeof LatexInput> | null>(null);
 
   const allSections = ref<CircleLabel[][]>([]);
 
@@ -44,11 +45,12 @@
       <LatexInput
         v-model="latexInputString"
         :hotkeys="KEY_TO_LATEX"
+        ref="latexInputRef"
         class="w-full rounded-md bg-white"
       />
       <LatexButton
         v-for="key in KEY_TO_LATEX"
-        @click="latexInputString += key + ' '"
+        @click="latexInputRef?.insert(key)"
         :label="key"
         class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
       />
