@@ -6,6 +6,7 @@
   import { ref, computed } from "vue";
   import type { CircleLabel } from "./sets/types/types";
   import { useMathJSON } from "./sets/composables/useMathJSON";
+  import { KEYBOARD_TO_LATEX } from "./sets/other/constants";
 
 
   const latexInputString = ref("");
@@ -14,7 +15,7 @@
 
   const mathJSON = useMathJSON(latexInputString);
 
-  const output = computed(() => {
+  const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
     if (!mathJSON.value) return [];
     try {
@@ -23,17 +24,6 @@
       return [];
     }
   });
-
-  const hotkeys = {
-    i: "\\cap",
-    u: "\\cup",
-    d: "\\triangle",
-    o: "\\Omega",
-    S: "S",
-    c: "^\\complement",
-    '\\': '\\setminus'
-  };
-
 </script>
 
 <template>
@@ -44,7 +34,7 @@
   </div>
   <MainCanvas
     @sections-updated="(newAllSections) => (allSections = newAllSections)"
-    :sections-to-highlight="output"
+    :sections-to-highlight="activeSubsets"
   />
   <div
     style="position: absolute; bottom: 0; z-index: 2"
@@ -53,11 +43,11 @@
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
       <LatexInput
         v-model="latexInputString"
-        :hotkeys="hotkeys"
+        :hotkeys="KEYBOARD_TO_LATEX"
         class="w-full rounded-md bg-white"
       />
       <LatexButton
-        v-for="command in hotkeys"
+        v-for="command in KEYBOARD_TO_LATEX"
         @click="latexInputString += command + ' '"
         :label="command"
         class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
