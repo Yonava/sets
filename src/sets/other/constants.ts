@@ -17,3 +17,13 @@ export const KEY_TO_LATEX = {
     c: "^\\complement",
     '\\': '\\setminus'
   }as const
+
+  export const LATEX_SET_OPERATIONS = {
+    SET_MINUS: 'SetMinus',
+    UNION: 'Union',
+    INTERSECTION: 'Intersection',
+    SYMMETRIC_DIFFERENCE: 'SymmetricDifference',
+    COMPLEMENT: 'Complement'
+  }
+
+  export type LatexSetOperation = typeof LATEX_SET_OPERATIONS[keyof typeof LATEX_SET_OPERATIONS]

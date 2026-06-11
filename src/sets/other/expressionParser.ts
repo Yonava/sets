@@ -1,4 +1,5 @@
 import type { MathJsonExpression } from '@cortex-js/compute-engine'
+import { LATEX_SET_OPERATIONS } from './constants'
 
 type Subset = string[]
 
@@ -41,15 +42,15 @@ const setParser = (partition: Subset[]) => {
     const [head, ...args] = node as [string, ...MathJsonExpression[]]
 
     switch (head) {
-      case 'Union':
+      case LATEX_SET_OPERATIONS.UNION:
         return union(parseHelper(args[0]), parseHelper(args[1]))
-      case 'Intersection':
+      case LATEX_SET_OPERATIONS.INTERSECTION:
         return intersection(parseHelper(args[0]), parseHelper(args[1]))
-      case 'SymmetricDifference':
+      case LATEX_SET_OPERATIONS.SYMMETRIC_DIFFERENCE:
         return difference(parseHelper(args[0]), parseHelper(args[1]))
-      case 'Complement':
+      case LATEX_SET_OPERATIONS.COMPLEMENT:
         return complement(parseHelper(args[0]))
-      case 'SetMinus':
+      case LATEX_SET_OPERATIONS.SET_MINUS:
         return exclusion(parseHelper(args[0]), parseHelper(args[1]))
       default:
         throw new Error(`Unknown operator: ${head}`)

@@ -2,7 +2,8 @@
     "words": [
         "mathlive",
         "MathfieldElement",
-        "katex"
+        "katex",
+        "setminus",
     ]
     
 }
