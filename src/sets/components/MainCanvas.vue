@@ -66,18 +66,15 @@
     circles,
   });
 
-  const entireSetSpaceHighlighted = computed(() => {
-    return props.sectionsToHighlight.some(group =>
-      group.sections.some(s => s.length === 1 && s[0] === 'S')
-    );
+  const backgroundColors = computed(() => {
+    return props.sectionsToHighlight
+      .filter(group => group.sections.some(s => s.length === 1 && s[0] === 'S'))
+      .map(group => group.color);
   });
 
   const canvasColor = computed(() => {
-    if (!entireSetSpaceHighlighted.value) return COLORS.BACKGROUND;
-    const group = props.sectionsToHighlight.find(g =>
-      g.sections.some(s => s.length === 1 && s[0] === 'S')
-    );
-    return group?.color ?? COLORS.HIGHLIGHT;
+    if (backgroundColors.value.length === 1) return backgroundColors.value[0];
+    return COLORS.BACKGROUND;
   });
 
   const overlaps = useOverlaps(circles);
@@ -127,6 +124,7 @@
       highlightedCircles: highlightedCircles.value,
       highlightedOverlaps: highlightedOverlaps.value,
       isCircleFocused,
+      backgroundColors: backgroundColors.value.length > 1 ? backgroundColors.value : null,
     });
   };
 
