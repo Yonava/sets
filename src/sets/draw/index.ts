@@ -6,8 +6,8 @@ import { colorOverlappingAreas } from "./overlaps"
 type DrawProps = {
   circles: Circle[],
   overlaps: Overlap[],
-  highlightedCircles: Map<Circle['label'], string>,
-  highlightedOverlaps: Map<Overlap['id'], string>,
+  highlightedCircles: Map<Circle['label'], string[]>,
+  highlightedOverlaps: Map<Overlap['id'], string[]>,
   isCircleFocused: CircleFocusControls['isCircleFocused'],
 }
 
@@ -17,7 +17,7 @@ export const draw = (ctx: CanvasRenderingContext2D, props: DrawProps) => {
   for (const circle of props.circles) {
     drawCircleBackground(ctx, {
       circle,
-      highlightColor: highlightedCircles.get(circle.label) ?? null,
+      highlightColors: highlightedCircles.get(circle.label) ?? null,
     })
   }
 

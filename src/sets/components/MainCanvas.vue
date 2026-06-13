@@ -84,10 +84,14 @@
   const allSections = useAllSections(circles, overlaps);
 
   const highlightedCircles = computed(() => {
-    const map = new Map<Circle['label'], string>()
+    const map = new Map<Circle['label'], string[]>()
     for (const { sections, color } of circleSectionsToHighlight.value) {
       for (const section of sections) {
-        if (section.length === 1) map.set(section[0], color)
+        if (section.length === 1) {
+          const existing = map.get(section[0]) ?? []
+          existing.push(color)
+          map.set(section[0], existing)
+        }
       }
     }
     return map
@@ -99,13 +103,17 @@
       const key = overlap.circles.toSorted((a, b) => a.localeCompare(b)).join('.')
       overlapByKey.set(key, overlap)
     }
-    const map = new Map<Overlap['id'], string>()
+    const map = new Map<Overlap['id'], string[]>()
     for (const { sections, color } of circleSectionsToHighlight.value) {
       for (const section of sections) {
         if (section.length > 1) {
           const key = section.toSorted((a, b) => a.localeCompare(b)).join('.')
           const overlap = overlapByKey.get(key)
-          if (overlap) map.set(overlap.id, color)
+          if (overlap) {
+            const existing = map.get(overlap.id) ?? []
+            existing.push(color)
+            map.set(overlap.id, existing)
+          }
         }
       }
     }
