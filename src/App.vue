@@ -6,7 +6,7 @@
   import { ref, computed } from "vue";
   import type { CircleLabel , HighlightGroup} from "./sets/types/types";
   import { parseMathJSON } from "./sets/other/parseMathJSON";
-  import { KEY_TO_LATEX } from "./sets/other/constants";
+  import { KEY_TO_LATEX, COLORS } from "./sets/other/constants";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
   const setInputRef = (el: unknown, index: number) => {
@@ -25,8 +25,6 @@
     focusedIndex.value = latexInputStrings.value.length - 1;
   };
 
-  const inputColors = ["#F87171", "#60A5FA", "#34D399", "#FBBF24", "#A78BFA"];
-
   const allSections = ref<CircleLabel[][]>([]);
   
   const activeSubsets = computed(() => {
@@ -36,7 +34,7 @@
       const mathJSON = parseMathJSON(value);
       if (!mathJSON) continue;
       try {
-        results.push({ sections: parse(mathJSON.json), color: inputColors[results.length % inputColors.length] });
+        results.push({ sections: parse(mathJSON.json), color: COLORS.HIGHLIGHT[results.length % COLORS.HIGHLIGHT.length] });
       } catch (e) {
       }
     }
@@ -59,20 +57,31 @@
     class="flex justify-center items-center w-screen"
   >
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
-      <LatexInput
+      <div
         v-for="(_, index) in latexInputStrings"
-        :key="index"
-        v-model="latexInputStrings[index]"
-        :hotkeys="KEY_TO_LATEX"
-        :ref="(el) => setInputRef(el, index)"
-        class="w-full rounded-md bg-white mb-2"
-        @focus="focusedIndex = index"
-      />
+        class="flex items-center gap-2 mb-2"
+      >
+        <LatexInput
+          :key="index"
+          v-model="latexInputStrings[index]"
+          :hotkeys="KEY_TO_LATEX"
+          :ref="(el) => setInputRef(el, index)"
+          class="flex-1 rounded-md bg-white min-w-0"
+          @focus="focusedIndex = index"
+        />
+
+        <div
+          :style="{ backgroundColor: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] }"
+          class="w-2 h-8 rounded-full flex-none"
+        ></div>
+      </div>
+
       <button
         @click="addInput"
+        :disabled="latexInputStrings.length > 5"
         class="text-white text-sm mb-2 opacity-60 hover:opacity-100"
       >+ add expression</button>
-      <div>
+      <div class="flex">
         <LatexButton
           v-for="key in KEY_TO_LATEX"
           @click="insertLatexSymbol(key)"
