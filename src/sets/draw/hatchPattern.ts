@@ -1,20 +1,19 @@
 const patternCache = new Map<string, CanvasPattern>()
 
-function parseHex(color: string): [number, number, number] {
+const parseHex = (color: string): [number, number, number] => {
   const n = parseInt(color.slice(1), 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-export function getHatchPattern(ctx: CanvasRenderingContext2D, colors: string[], stripeWidth = 8): CanvasPattern {
+export const getHatchPattern = (ctx: CanvasRenderingContext2D, colors: string[], stripeWidth = 8): CanvasPattern => {
   const key = colors.join('|')
   const cached = patternCache.get(key)
   if (cached) return cached
 
-  const n = colors.length
-  const tileSize = stripeWidth * n
+  const tileSize = stripeWidth * colors.length
   const offscreen = new OffscreenCanvas(tileSize, tileSize)
-  const octx = offscreen.getContext('2d')!
-  const imgData = octx.createImageData(tileSize, tileSize)
+  const offscreenCtx = offscreen.getContext('2d')!
+  const imgData = offscreenCtx.createImageData(tileSize, tileSize)
   const parsed = colors.map(parseHex)
 
   for (let y = 0; y < tileSize; y++) {
@@ -29,7 +28,7 @@ export function getHatchPattern(ctx: CanvasRenderingContext2D, colors: string[],
     }
   }
 
-  octx.putImageData(imgData, 0, 0)
+  offscreenCtx.putImageData(imgData, 0, 0)
   const pattern = ctx.createPattern(offscreen, 'repeat')!
   patternCache.set(key, pattern)
   return pattern
