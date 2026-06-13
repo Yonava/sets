@@ -44,6 +44,7 @@ const drawOverlappingAreas = (ctx: CanvasRenderingContext2D, props: DrawOverlapp
 type ColorOverlappingAreasProps = {
   circles: Circle[],
   overlaps: Overlap[],
+  highlightedCircles: Map<Circle['label'], string>,
   highlightedOverlaps: Map<Overlap['id'], string>,
 }
 
@@ -51,12 +52,10 @@ export const colorOverlappingAreas = (
   ctx: CanvasRenderingContext2D,
   props: ColorOverlappingAreasProps
 ) => {
-  const { circles, overlaps, highlightedOverlaps } = props
+  const { circles, overlaps, highlightedCircles, highlightedOverlaps } = props
   for (const overlap of overlaps) {
-    drawOverlappingAreas(ctx, {
-      circles,
-      overlap,
-      highlightColor: highlightedOverlaps.get(overlap.id) ?? null,
-    })
+    const highlightColor = highlightedOverlaps.get(overlap.id) ?? null
+    if (!highlightColor && !overlap.circles.some(label => highlightedCircles.has(label))) continue
+    drawOverlappingAreas(ctx, { circles, overlap, highlightColor })
   }
 }

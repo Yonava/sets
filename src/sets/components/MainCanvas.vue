@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from "vue";
-  import type { Circle, HighlightGroup } from "../types/types";
+  import type { Circle, Overlap, HighlightGroup } from "../types/types";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
@@ -83,11 +83,41 @@
   const overlaps = useOverlaps(circles);
   const allSections = useAllSections(circles, overlaps);
 
+  const highlightedCircles = computed(() => {
+    const map = new Map<Circle['label'], string>()
+    for (const { sections, color } of circleSectionsToHighlight.value) {
+      for (const section of sections) {
+        if (section.length === 1) map.set(section[0], color)
+      }
+    }
+    return map
+  })
+
+  const highlightedOverlaps = computed(() => {
+    const overlapByKey = new Map<string, Overlap>()
+    for (const overlap of overlaps.value) {
+      const key = overlap.circles.toSorted((a, b) => a.localeCompare(b)).join('.')
+      overlapByKey.set(key, overlap)
+    }
+    const map = new Map<Overlap['id'], string>()
+    for (const { sections, color } of circleSectionsToHighlight.value) {
+      for (const section of sections) {
+        if (section.length > 1) {
+          const key = section.toSorted((a, b) => a.localeCompare(b)).join('.')
+          const overlap = overlapByKey.get(key)
+          if (overlap) map.set(overlap.id, color)
+        }
+      }
+    }
+    return map
+  })
+
   magicCanvas.draw.content.value = (ctx) => {
     draw(ctx, {
       circles: circles.value,
       overlaps: overlaps.value,
-      highlightGroups: circleSectionsToHighlight.value,
+      highlightedCircles: highlightedCircles.value,
+      highlightedOverlaps: highlightedOverlaps.value,
       isCircleFocused,
     });
   };
