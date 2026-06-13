@@ -5,7 +5,7 @@
   import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel , HighlightGroup} from "./sets/types/types";
-  import { useMathJSON } from "./sets/composables/useMathJSON";
+  import { parseMathJSON } from "./sets/composables/useMathJSON";
   import { KEY_TO_LATEX } from "./sets/other/constants";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
@@ -28,15 +28,15 @@
   const inputColors = ["#F87171", "#60A5FA", "#34D399", "#FBBF24", "#A78BFA"];
 
   const allSections = ref<CircleLabel[][]>([]);
-
+  
   const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
     const results: HighlightGroup[] = [];
     for (const value of latexInputStrings.value) {
-      const mathJSON = useMathJSON(ref(value));
-      if (!mathJSON.value) continue;
+      const mathJSON = parseMathJSON(value);
+      if (!mathJSON) continue;
       try {
-        results.push({ sections: parse(mathJSON.value.json), color: inputColors[results.length % inputColors.length] });
+        results.push({ sections: parse(mathJSON.json), color: inputColors[results.length % inputColors.length] });
       } catch (e) {
       }
     }

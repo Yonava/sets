@@ -1,28 +1,14 @@
-import { computed, type Ref } from 'vue';
 import {ALPHABET } from '../other/constants';
 import { ComputeEngine } from '@cortex-js/compute-engine';
 import { LATEX_SET_SYMBOLS } from '../other/constants';
 
-/*
+const engine = new ComputeEngine();
 
-*/
-const createComputeEngine = () => {
-    const computeEngine = new ComputeEngine();
-
-  // make sure that all upper case chars and Omega are treated as sets in the compute engine
-  // otherwise might not interpret correctly and throw error even for correct syntax
-  
-  for (const letter of ALPHABET) {
-    computeEngine.declare(letter, "set");
-  }
-  computeEngine.declare(LATEX_SET_SYMBOLS.OMEGA, "set");
-  return computeEngine;
+// make sure that all upper case chars and Omega are treated as sets in the compute engine
+// otherwise might not interpret correctly and throw error even for correct syntax
+for (const letter of ALPHABET) {
+  engine.declare(letter, "set");
 }
+engine.declare(LATEX_SET_SYMBOLS.OMEGA, "set");
 
-export const useMathJSON = (latexString: Ref<string>) => {
-    const computeEngine = createComputeEngine();
-
-    return computed(() => {
-        return computeEngine.parse(latexString.value);
-    });
-}
+export const parseMathJSON = (latex: string) => engine.parse(latex);
