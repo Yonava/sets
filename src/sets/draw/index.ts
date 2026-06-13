@@ -1,29 +1,31 @@
 import type { CircleFocusControls } from "../composables/useCircleFocus"
-import type { Circle, Overlap } from "../types/types"
+import type { Circle, Overlap, HighlightGroup } from "../types/types"
 import { drawCircleBackground, drawCircleLabel, drawCircleOutline } from "./circles"
 import { colorOverlappingAreas } from "./overlaps"
 
 type GetHighlightedSectionsProps = {
-  selectedSections: Circle['label'][][],
+  highlightGroups: HighlightGroup[],
   overlaps: Overlap[],
 }
 
-export const getHighlightedSections = (props: GetHighlightedSectionsProps) => {
-  const highlightedCircles = new Set<Circle['label']>()
-  const highlightedOverlaps = new Set<Overlap['id']>()
+const getHighlightedSections = (props: GetHighlightedSectionsProps) => {
+  const highlightedCircles = new Map<Circle['label'], string>()
+  const highlightedOverlaps = new Map<Overlap['id'], string>()
 
-  for (const section of props.selectedSections) {
-    if (section.length === 1) {
-      const [label] = section
-      highlightedCircles.add(label)
-      continue;
-    }
+  for (const { sections, color } of props.highlightGroups) {
+    for (const section of sections) {
+      if (section.length === 1) {
+        const [label] = section
+        highlightedCircles.set(label, color)
+        continue;
+      }
 
-    for (const overlap of props.overlaps) {
-      const circlesInOverlap = overlap.circles.toSorted((a, b) => a.localeCompare(b));
-      const circlesInSelection = section.toSorted((a, b) => a.localeCompare(b))
-      if (circlesInOverlap.join('.') === circlesInSelection.join('.')) {
-        highlightedOverlaps.add(overlap.id)
+      for (const overlap of props.overlaps) {
+        const circlesInOverlap = overlap.circles.toSorted((a, b) => a.localeCompare(b));
+        const circlesInSelection = section.toSorted((a, b) => a.localeCompare(b))
+        if (circlesInOverlap.join('.') === circlesInSelection.join('.')) {
+          highlightedOverlaps.set(overlap.id, color)
+        }
       }
     }
   }
@@ -37,7 +39,7 @@ export const getHighlightedSections = (props: GetHighlightedSectionsProps) => {
 type DrawProps = {
   circles: Circle[],
   overlaps: Overlap[],
-  selectedSections: Circle['label'][][],
+  highlightGroups: HighlightGroup[],
   isCircleFocused: CircleFocusControls['isCircleFocused'],
 }
 
@@ -50,7 +52,7 @@ export const draw = (ctx: CanvasRenderingContext2D, props: DrawProps) => {
   for (const circle of props.circles) {
     drawCircleBackground(ctx, {
       circle,
-      isHighlighted: highlightedCircles.has(circle.label),
+      highlightColor: highlightedCircles.get(circle.label) ?? null,
     })
   }
 

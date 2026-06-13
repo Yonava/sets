@@ -4,13 +4,13 @@ import { circle } from '@/shapes/shapes/circle'
 
 type DrawCircleBackgroundProps = {
   circle: Circle,
-  isHighlighted: boolean,
+  highlightColor: string | null,
 }
 
 export const drawCircleBackground = (ctx: CanvasRenderingContext2D, props: DrawCircleBackgroundProps) => {
   circle({
     ...props.circle,
-    fillColor: props.isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND,
+    fillColor: props.highlightColor ?? COLORS.BACKGROUND,
   }).draw(ctx)
 }
 

@@ -12,3 +12,8 @@ export type Overlap = {
   id: number,
   circles: Circle['label'][],
 }
+
+export type HighlightGroup = {
+    sections: CircleLabel[][];
+    color: string;
+  }

@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from "vue";
-  import type { Circle } from "../types/types.ts";
+  import type { Circle, HighlightGroup } from "../types/types";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
@@ -27,17 +27,20 @@
   const magicCanvas = useMagicCanvas();
 
   const props = defineProps<{
-    sectionsToHighlight: Circle["label"][][];
+    sectionsToHighlight: HighlightGroup[];
   }>();
 
   const emits = defineEmits<{
     (e: "sections-updated", value: Circle["label"][][]): void;
   }>();
 
-  const circleSectionsToHighlight = computed(() => {
-    return props.sectionsToHighlight.filter((section) => {
-      return !(section.length === 1 && section[0] === "S");
-    });
+  const circleSectionsToHighlight = computed<HighlightGroup[]>(() => {
+    return props.sectionsToHighlight
+      .map(group => ({
+        ...group,
+        sections: group.sections.filter(s => !(s.length === 1 && s[0] === 'S')),
+      }))
+      .filter(group => group.sections.length > 0);
   });
 
   const { canvasFocused } = useCanvasFocus(magicCanvas.canvas);
@@ -64,15 +67,17 @@
   });
 
   const entireSetSpaceHighlighted = computed(() => {
-    return props.sectionsToHighlight.some((section) => {
-      return section.length === 1 && section[0] === "S";
-    });
+    return props.sectionsToHighlight.some(group =>
+      group.sections.some(s => s.length === 1 && s[0] === 'S')
+    );
   });
 
   const canvasColor = computed(() => {
-    return entireSetSpaceHighlighted.value
-      ? COLORS.HIGHLIGHT
-      : COLORS.BACKGROUND;
+    if (!entireSetSpaceHighlighted.value) return COLORS.BACKGROUND;
+    const group = props.sectionsToHighlight.find(g =>
+      g.sections.some(s => s.length === 1 && s[0] === 'S')
+    );
+    return group?.color ?? COLORS.HIGHLIGHT;
   });
 
   const overlaps = useOverlaps(circles);
@@ -82,7 +87,7 @@
     draw(ctx, {
       circles: circles.value,
       overlaps: overlaps.value,
-      selectedSections: circleSectionsToHighlight.value,
+      highlightGroups: circleSectionsToHighlight.value,
       isCircleFocused,
     });
   };
