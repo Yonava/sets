@@ -1,6 +1,6 @@
-import {ALPHABET } from '../other/constants';
+import {ALPHABET } from './constants';
 import { ComputeEngine } from '@cortex-js/compute-engine';
-import { LATEX_SET_SYMBOLS } from '../other/constants';
+import { LATEX_SET_SYMBOLS } from './constants';
 
 const engine = new ComputeEngine();
 

@@ -5,7 +5,7 @@
   import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
   import type { CircleLabel , HighlightGroup} from "./sets/types/types";
-  import { parseMathJSON } from "./sets/composables/useMathJSON";
+  import { parseMathJSON } from "./sets/other/parseMathJSON";
   import { KEY_TO_LATEX } from "./sets/other/constants";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
