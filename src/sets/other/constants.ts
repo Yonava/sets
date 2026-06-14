@@ -22,9 +22,12 @@ export const KEY_TO_LATEX = {
     S: "S",
     c: "^\\complement",
     '\\': '\\setminus',
-    // '-': '\\setminus',
-    // '+': '\\cup',
-  }as const
+    } as const
+
+  export const ADDITIONAL_KEY_BINDINGS = {
+    '-': '\\setminus',
+    '+': '\\cup',
+  } as const
 
   export const LATEX_SET_SYMBOLS = {
     SET_MINUS: 'SetMinus',
