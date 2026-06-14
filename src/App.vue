@@ -6,7 +6,7 @@
   import { ref, computed } from "vue";
   import type { CircleLabel , HighlightGroup} from "./sets/types/types";
   import { parseMathJSON } from "./sets/other/parseMathJSON";
-  import { KEY_TO_LATEX, COLORS } from "./sets/other/constants";
+  import { KEY_TO_LATEX, ADDITIONAL_KEY_BINDINGS, COLORS } from "./sets/other/constants";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
   const setInputRef = (el: unknown, index: number) => {
@@ -64,7 +64,7 @@
         <LatexInput
           :key="index"
           v-model="latexInputStrings[index]"
-          :hotkeys="KEY_TO_LATEX"
+          :hotkeys="{ ...KEY_TO_LATEX, ...ADDITIONAL_KEY_BINDINGS }"
           :ref="(el) => setInputRef(el, index)"
           class="flex-1 rounded-md bg-white min-w-0"
           @focus="focusedIndex = index"
