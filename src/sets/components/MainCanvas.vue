@@ -139,7 +139,7 @@
 
   watch(allSections, () => {
     emits("sections-updated", allSections.value);
-  });
+  }, { immediate: true });
 
   const createCircle = () => {
     const newCircle: Circle = {
