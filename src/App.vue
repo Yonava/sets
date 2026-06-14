@@ -13,7 +13,7 @@
     if (el) latexInputRefs.value[index] = el as InstanceType<typeof LatexInput>;
   };
 
-  const latexInputStrings = ref<string[]>([""]);
+  const latexInputStrings = ref<{value: string, hidden: boolean}[]>([{ value: "", hidden: false }]);
   const focusedIndex = ref(0);
 
   const insertLatexSymbol = (symbol: string) => {
@@ -21,7 +21,7 @@
   };
 
   const addInput = () => {
-    latexInputStrings.value.push("");
+    latexInputStrings.value.push({ value: "", hidden: false });
     focusedIndex.value = latexInputStrings.value.length - 1;
   };
 
@@ -30,11 +30,12 @@
   const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
     const results: HighlightGroup[] = [];
-    for (const value of latexInputStrings.value) {
-      const mathJSON = parseMathJSON(value);
+    for (const [index, inputString] of latexInputStrings.value.entries()) {
+      if (inputString.hidden) continue;
+      const mathJSON = parseMathJSON(inputString.value);
       if (!mathJSON) continue;
       try {
-        results.push({ sections: parse(mathJSON.json), color: COLORS.HIGHLIGHT[results.length % COLORS.HIGHLIGHT.length] });
+        results.push({ sections: parse(mathJSON.json), color: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] });
       } catch (e) {
       }
     }
@@ -63,17 +64,18 @@
       >
         <LatexInput
           :key="index"
-          v-model="latexInputStrings[index]"
+          v-model="latexInputStrings[index].value"
           :hotkeys="{ ...KEY_TO_LATEX, ...ADDITIONAL_KEY_BINDINGS }"
           :ref="(el) => setInputRef(el, index)"
           class="flex-1 rounded-md bg-white min-w-0"
           @focus="focusedIndex = index"
         />
-
-        <div
-          :style="{ backgroundColor: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] }"
+        <button
+            @click="latexInputStrings[index].hidden = !latexInputStrings[index].hidden"
+            :style="{ backgroundColor: latexInputStrings[index].hidden ? 'gray' : COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] }"
           class="w-2 h-8 rounded-full flex-none"
-        ></div>
+        
+        ></button>
       </div>
 
       <button
