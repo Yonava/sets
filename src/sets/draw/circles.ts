@@ -1,17 +1,31 @@
 import type { Circle } from '@/sets/types/types'
 import { COLORS } from '@/sets/other/constants'
 import { circle } from '@/shapes/shapes/circle'
+import { getHatchPattern } from './hatchPattern'
 
 type DrawCircleBackgroundProps = {
   circle: Circle,
-  isHighlighted: boolean,
+  highlightColors: string[] | null,
 }
 
 export const drawCircleBackground = (ctx: CanvasRenderingContext2D, props: DrawCircleBackgroundProps) => {
-  circle({
-    ...props.circle,
-    fillColor: props.isHighlighted ? COLORS.HIGHLIGHT : COLORS.BACKGROUND,
-  }).draw(ctx)
+  const { circle: c, highlightColors } = props
+
+  if (!highlightColors || highlightColors.length === 1) {
+    circle({
+      ...c,
+      fillColor: highlightColors?.[0] ?? COLORS.BACKGROUND,
+    }).draw(ctx)
+    return
+  }
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(c.at.x, c.at.y, c.radius, 0, 2 * Math.PI)
+  ctx.imageSmoothingEnabled = false
+  ctx.fillStyle = getHatchPattern(ctx, highlightColors)
+  ctx.fill()
+  ctx.restore()
 }
 
 type DrawCircleOutlineProps = {

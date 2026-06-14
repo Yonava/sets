@@ -1,61 +1,43 @@
+import { getMagicCoordinates } from "@/canvas/coordinates"
 import type { CircleFocusControls } from "../composables/useCircleFocus"
 import type { Circle, Overlap } from "../types/types"
 import { drawCircleBackground, drawCircleLabel, drawCircleOutline } from "./circles"
+import { getHatchPattern } from "./hatchPattern"
 import { colorOverlappingAreas } from "./overlaps"
-
-type GetHighlightedSectionsProps = {
-  selectedSections: Circle['label'][][],
-  overlaps: Overlap[],
-}
-
-export const getHighlightedSections = (props: GetHighlightedSectionsProps) => {
-  const highlightedCircles = new Set<Circle['label']>()
-  const highlightedOverlaps = new Set<Overlap['id']>()
-
-  for (const section of props.selectedSections) {
-    if (section.length === 1) {
-      const [label] = section
-      highlightedCircles.add(label)
-      continue;
-    }
-
-    for (const overlap of props.overlaps) {
-      const circlesInOverlap = overlap.circles.toSorted((a, b) => a.localeCompare(b));
-      const circlesInSelection = section.toSorted((a, b) => a.localeCompare(b))
-      if (circlesInOverlap.join('.') === circlesInSelection.join('.')) {
-        highlightedOverlaps.add(overlap.id)
-      }
-    }
-  }
-
-  return {
-    highlightedCircles,
-    highlightedOverlaps,
-  }
-}
 
 type DrawProps = {
   circles: Circle[],
   overlaps: Overlap[],
-  selectedSections: Circle['label'][][],
+  highlightedCircles: Map<Circle['label'], string[]>,
+  highlightedOverlaps: Map<Overlap['id'], string[]>,
   isCircleFocused: CircleFocusControls['isCircleFocused'],
+  backgroundColors: string[] | null,
 }
 
 export const draw = (ctx: CanvasRenderingContext2D, props: DrawProps) => {
-  const {
-    highlightedCircles,
-    highlightedOverlaps,
-  } = getHighlightedSections(props)
+  const { highlightedCircles, highlightedOverlaps } = props
+
+  if (props.backgroundColors && props.backgroundColors.length > 1) {
+    const start = getMagicCoordinates({ clientX: 0, clientY: 0 }, ctx)
+    const end = getMagicCoordinates({ clientX: window.innerWidth, clientY: window.innerHeight }, ctx)
+    ctx.save()
+    ctx.imageSmoothingEnabled = false
+    ctx.fillStyle = getHatchPattern(ctx, props.backgroundColors)
+    ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y)
+    ctx.restore()
+  }
 
   for (const circle of props.circles) {
     drawCircleBackground(ctx, {
       circle,
-      isHighlighted: highlightedCircles.has(circle.label),
+      highlightColors: highlightedCircles.get(circle.label) ?? null,
     })
   }
 
   colorOverlappingAreas(ctx, {
-    ...props,
+    circles: props.circles,
+    overlaps: props.overlaps,
+    highlightedCircles,
     highlightedOverlaps,
   })
 

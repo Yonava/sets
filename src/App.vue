@@ -4,31 +4,41 @@
   import LatexButton from "./sets/components/LatexButton.vue";
   import { setParser } from "./sets/other/expressionParser";
   import { ref, computed } from "vue";
-  import type { CircleLabel } from "./sets/types/types";
-  import { useMathJSON } from "./sets/composables/useMathJSON";
-  import { KEY_TO_LATEX } from "./sets/other/constants";
+  import type { CircleLabel , HighlightGroup} from "./sets/types/types";
+  import { parseMathJSON } from "./sets/other/parseMathJSON";
+  import { KEY_TO_LATEX, COLORS } from "./sets/other/constants";
 
+  const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
+  const setInputRef = (el: unknown, index: number) => {
+    if (el) latexInputRefs.value[index] = el as InstanceType<typeof LatexInput>;
+  };
 
-  const latexInputString = ref("");
-  const latexInputRef = ref<InstanceType<typeof LatexInput> | null>(null);
+  const latexInputStrings = ref<string[]>([""]);
+  const focusedIndex = ref(0);
 
   const insertLatexSymbol = (symbol: string) => {
-    if (!latexInputRef.value) return;
-    latexInputRef.value.insertIntoLatexString(symbol);
+    latexInputRefs.value[focusedIndex.value]?.insertIntoLatexString(symbol);
+  };
+
+  const addInput = () => {
+    latexInputStrings.value.push("");
+    focusedIndex.value = latexInputStrings.value.length - 1;
   };
 
   const allSections = ref<CircleLabel[][]>([]);
-
-  const mathJSON = useMathJSON(latexInputString);
-
+  
   const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
-    if (!mathJSON.value) return [];
-    try {
-      return parse(mathJSON.value.json);
-    } catch (e) {
-      return [];
+    const results: HighlightGroup[] = [];
+    for (const value of latexInputStrings.value) {
+      const mathJSON = parseMathJSON(value);
+      if (!mathJSON) continue;
+      try {
+        results.push({ sections: parse(mathJSON.json), color: COLORS.HIGHLIGHT[results.length % COLORS.HIGHLIGHT.length] });
+      } catch (e) {
+      }
     }
+    return results;
   });
 </script>
 
@@ -47,18 +57,38 @@
     class="flex justify-center items-center w-screen"
   >
     <div class="bg-gray-600 p-5 w-[500px] rounded-t-lg">
-      <LatexInput
-        v-model="latexInputString"
-        :hotkeys="KEY_TO_LATEX"
-        ref="latexInputRef"
-        class="w-full rounded-md bg-white"
-      />
-      <LatexButton
-        v-for="key in KEY_TO_LATEX"
-        @click="insertLatexSymbol(key)"
-        :label="key"
-        class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
-      />
+      <div
+        v-for="(_, index) in latexInputStrings"
+        class="flex items-center gap-2 mb-2"
+      >
+        <LatexInput
+          :key="index"
+          v-model="latexInputStrings[index]"
+          :hotkeys="KEY_TO_LATEX"
+          :ref="(el) => setInputRef(el, index)"
+          class="flex-1 rounded-md bg-white min-w-0"
+          @focus="focusedIndex = index"
+        />
+
+        <div
+          :style="{ backgroundColor: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] }"
+          class="w-2 h-8 rounded-full flex-none"
+        ></div>
+      </div>
+
+      <button
+        @click="addInput"
+        :disabled="latexInputStrings.length > 5"
+        class="text-white text-sm mb-2 opacity-60 hover:opacity-100"
+      >+ add expression</button>
+      <div class="flex">
+        <LatexButton
+          v-for="key in KEY_TO_LATEX"
+          @click="insertLatexSymbol(key)"
+          :label="key"
+          class="bg-gray-900 text-white p-2 rounded-md w-10 h-10 mr-2 mt-2"
+        />
+      </div>
     </div>
   </div>
 </template>

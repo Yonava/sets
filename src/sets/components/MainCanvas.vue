@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from "vue";
-  import type { Circle } from "../types/types.ts";
+  import type { Circle, Overlap, HighlightGroup } from "../types/types";
   import { COLORS } from "@/sets/other/constants";
   import MagicCanvas from "@canvas/MagicCanvas.vue";
   import { useMagicCanvas } from "@canvas/index";
@@ -27,17 +27,20 @@
   const magicCanvas = useMagicCanvas();
 
   const props = defineProps<{
-    sectionsToHighlight: Circle["label"][][];
+    sectionsToHighlight: HighlightGroup[];
   }>();
 
   const emits = defineEmits<{
     (e: "sections-updated", value: Circle["label"][][]): void;
   }>();
 
-  const circleSectionsToHighlight = computed(() => {
-    return props.sectionsToHighlight.filter((section) => {
-      return !(section.length === 1 && section[0] === "S");
-    });
+  const circleSectionsToHighlight = computed<HighlightGroup[]>(() => {
+    return props.sectionsToHighlight
+      .map(group => ({
+        ...group,
+        sections: group.sections.filter(s => !(s.length === 1 && s[0] === 'S')),
+      }))
+      .filter(group => group.sections.length > 0);
   });
 
   const { canvasFocused } = useCanvasFocus(magicCanvas.canvas);
@@ -63,27 +66,65 @@
     circles,
   });
 
-  const entireSetSpaceHighlighted = computed(() => {
-    return props.sectionsToHighlight.some((section) => {
-      return section.length === 1 && section[0] === "S";
-    });
+  const backgroundColors = computed(() => {
+    return props.sectionsToHighlight
+      .filter(group => group.sections.some(s => s.length === 1 && s[0] === 'S'))
+      .map(group => group.color);
   });
 
   const canvasColor = computed(() => {
-    return entireSetSpaceHighlighted.value
-      ? COLORS.HIGHLIGHT
-      : COLORS.BACKGROUND;
+    if (backgroundColors.value.length === 1) return backgroundColors.value[0];
+    return COLORS.BACKGROUND;
   });
 
   const overlaps = useOverlaps(circles);
   const allSections = useAllSections(circles, overlaps);
 
+  const highlightedCircles = computed(() => {
+    const map = new Map<Circle['label'], string[]>()
+    for (const { sections, color } of circleSectionsToHighlight.value) {
+      for (const section of sections) {
+        if (section.length === 1) {
+          const existing = map.get(section[0]) ?? []
+          existing.push(color)
+          map.set(section[0], existing)
+        }
+      }
+    }
+    return map
+  })
+
+  const highlightedOverlaps = computed(() => {
+    const overlapByKey = new Map<string, Overlap>()
+    for (const overlap of overlaps.value) {
+      const key = overlap.circles.toSorted((a, b) => a.localeCompare(b)).join('.')
+      overlapByKey.set(key, overlap)
+    }
+    const map = new Map<Overlap['id'], string[]>()
+    for (const { sections, color } of circleSectionsToHighlight.value) {
+      for (const section of sections) {
+        if (section.length > 1) {
+          const key = section.toSorted((a, b) => a.localeCompare(b)).join('.')
+          const overlap = overlapByKey.get(key)
+          if (overlap) {
+            const existing = map.get(overlap.id) ?? []
+            existing.push(color)
+            map.set(overlap.id, existing)
+          }
+        }
+      }
+    }
+    return map
+  })
+
   magicCanvas.draw.content.value = (ctx) => {
     draw(ctx, {
       circles: circles.value,
       overlaps: overlaps.value,
-      selectedSections: circleSectionsToHighlight.value,
+      highlightedCircles: highlightedCircles.value,
+      highlightedOverlaps: highlightedOverlaps.value,
       isCircleFocused,
+      backgroundColors: backgroundColors.value.length > 1 ? backgroundColors.value : null,
     });
   };
 
