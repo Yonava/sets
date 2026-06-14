@@ -15,12 +15,12 @@ export const COLORS = {
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
 export const KEY_TO_LATEX = {
-    i: "\\cap",
-    u: "\\cup",
-    d: "\\triangle",
-    o: "\\Omega",
+    I: "\\cap",
+    U: "\\cup",
+    D: "\\triangle",
+    O: "\\Omega",
     S: "S",
-    c: "^\\complement",
+    C: "^\\complement",
     '\\': '\\setminus',
     } as const
 
