@@ -33,11 +33,8 @@
     for (const [index, inputString] of latexInputStrings.value.entries()) {
       if (inputString.hidden) continue;
       const mathJSON = parseMathJSON(inputString.value);
-      if (!mathJSON) continue;
-      try {
-        results.push({ sections: parse(mathJSON.json), color: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] });
-      } catch (e) {
-      }
+      const sections = mathJSON && parse(mathJSON.json);
+      if (sections) results.push({ sections, color: COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] });
     }
     return results;
   });
