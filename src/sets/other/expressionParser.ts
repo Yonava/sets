@@ -57,9 +57,13 @@ const setParser = (partition: Subset[]) => {
     }
   }
 
-  return (mathJSON: MathJsonExpression) => {
-    if (!mathJSON) return []
-    return dedupe(parseHelper(mathJSON))
+  return (mathJSON: MathJsonExpression): Subset[] | null => {
+    if (!mathJSON) return null
+    try {
+      return dedupe(parseHelper(mathJSON))
+    } catch {
+      return null
+    }
   }
 }
 
