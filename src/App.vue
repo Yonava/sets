@@ -7,6 +7,7 @@
   import type { CircleLabel , HighlightGroup} from "./sets/types/types";
   import { parseMathJSON } from "./sets/other/parseMathJSON";
   import { KEY_TO_LATEX, ADDITIONAL_KEY_BINDINGS, COLORS } from "./sets/other/constants";
+  import { simplify } from "./sets/other/simplifier";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
   const setInputRef = (el: unknown, index: number) => {
@@ -26,7 +27,18 @@
   };
 
   const allSections = ref<CircleLabel[][]>([]);
-  
+
+  const simplifiedForms = computed(() =>
+    latexInputStrings.value.map(({ value }) => simplify(value))
+  );
+
+  const applySimplification = (index: number) => {
+    const simplified = simplifiedForms.value[index];
+    if (!simplified) return;
+    latexInputStrings.value[index].value = simplified;
+    latexInputRefs.value[index]?.replaceLatexString(simplified);
+  };
+
   const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
     const results: HighlightGroup[] = [];
@@ -68,10 +80,15 @@
           @focus="focusedIndex = index"
         />
         <button
+          v-if="simplifiedForms[index]"
+          @click="applySimplification(index)"
+          title="Simplify expression"
+          class="text-white text-xs px-2 h-8 rounded-md flex-none bg-gray-500 hover:bg-gray-400 whitespace-nowrap"
+        >simplify</button>
+        <button
             @click="latexInputStrings[index].hidden = !latexInputStrings[index].hidden"
             :style="{ backgroundColor: latexInputStrings[index].hidden ? 'gray' : COLORS.HIGHLIGHT[index % COLORS.HIGHLIGHT.length] }"
           class="w-2 h-8 rounded-full flex-none"
-        
         ></button>
       </div>
 
