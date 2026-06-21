@@ -27,7 +27,7 @@ function trySimplify(node: MathJsonExpression, variables: string[], originalLate
   return result
 }
 
-export function simplify(latex: string, definedSets?: string[]): string | null {
+function simplifyOnce(latex: string, definedSets?: string[]): string | null {
   const expr = parseMathJSON(latex)
   if (!expr) return null
 
@@ -37,7 +37,6 @@ export function simplify(latex: string, definedSets?: string[]): string | null {
   if (allVariables.length === 0 || allVariables.length > MAX_VARIABLES) return null
 
   // Pass 1: algebraic simplification — all variables treated as potentially non-empty
-  // Handles cases like A ∪ A → A regardless of canvas state
   const algebraic = trySimplify(node, allVariables, latex)
   if (algebraic) return algebraic
 
@@ -54,4 +53,18 @@ export function simplify(latex: string, definedSets?: string[]): string | null {
   }
 
   return null
+}
+
+export function simplify(latex: string, definedSets?: string[]): string | null {
+  let current = latex
+  let result: string | null = null
+
+  for (let i = 0; i < 10; i++) {
+    const next = simplifyOnce(current, definedSets)
+    if (!next) break
+    result = next
+    current = next
+  }
+
+  return result
 }
