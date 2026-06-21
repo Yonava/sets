@@ -8,6 +8,7 @@
   import { parseMathJSON } from "./sets/other/parseMathJSON";
   import { KEY_TO_LATEX, ADDITIONAL_KEY_BINDINGS, COLORS } from "./sets/other/constants";
   import { simplify } from "./sets/other/simplifier";
+  import { extractVariables } from "./sets/other/simplifier/truthTable";
 
   const latexInputRefs = ref<InstanceType<typeof LatexInput>[]>([]);
   const setInputRef = (el: unknown, index: number) => {
@@ -28,8 +29,25 @@
 
   const allSections = ref<CircleLabel[][]>([]);
 
+  const definedSets = computed(() => [...new Set(allSections.value.flat())]);
+
+  const inputErrors = computed(() => {
+    const parse = setParser(allSections.value);
+    return latexInputStrings.value.map(({ value }) => {
+      if (!value.trim()) return false;
+      const mathJSON = parseMathJSON(value);
+      if (!mathJSON) return true;
+      if (parse(mathJSON.json) === null) return true;
+      if (definedSets.value.length > 0) {
+        const vars = extractVariables(mathJSON.json);
+        if (vars.some(v => !definedSets.value.includes(v))) return true;
+      }
+      return false;
+    });
+  });
+
   const simplifiedForms = computed(() =>
-    latexInputStrings.value.map(({ value }) => simplify(value))
+    latexInputStrings.value.map(({ value }) => simplify(value, definedSets.value))
   );
 
   const applySimplification = (index: number) => {
@@ -76,7 +94,7 @@
           v-model="latexInputStrings[index].value"
           :hotkeys="{ ...KEY_TO_LATEX, ...ADDITIONAL_KEY_BINDINGS }"
           :ref="(el) => setInputRef(el, index)"
-          class="flex-1 rounded-md bg-white min-w-0"
+          :class="['flex-1 rounded-md min-w-0', inputErrors[index] ? 'bg-red-50 ring-2 ring-red-400' : 'bg-white']"
           @focus="focusedIndex = index"
         />
         <button
