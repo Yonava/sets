@@ -77,13 +77,16 @@ export function mathJsonToLatex(node: MathJsonExpression): string {
   if (!Array.isArray(node)) return ''
   const [head, ...args] = node as [string, ...MathJsonExpression[]]
 
-  // Wrap binary operations in parens when used as arguments
+  const ASSOCIATIVE = [S.UNION, S.INTERSECTION]
+
   const wrap = (child: MathJsonExpression): string => {
     if (typeof child === 'string') return child
     if (!Array.isArray(child)) return ''
-    const isBinary = child[0] !== S.COMPLEMENT
+    const childHead = child[0] as string
+    // Same associative operator — A ∪ (B ∪ C) can be written as A ∪ B ∪ C
+    if (childHead === head && ASSOCIATIVE.includes(head)) return mathJsonToLatex(child)
     const inner = mathJsonToLatex(child)
-    return isBinary ? `\\left(${inner}\\right)` : inner
+    return childHead !== S.COMPLEMENT ? `\\left(${inner}\\right)` : inner
   }
 
   switch (head) {
@@ -94,11 +97,4 @@ export function mathJsonToLatex(node: MathJsonExpression): string {
     case S.COMPLEMENT:           return `${wrap(args[0])}^{\\complement}`
     default:                     return String(node)
   }
-}
-
-export function countNodes(node: MathJsonExpression): number {
-  if (typeof node === 'string') return 1
-  if (!Array.isArray(node)) return 1
-  const [, ...args] = node as [string, ...MathJsonExpression[]]
-  return 1 + args.reduce((sum, arg) => sum + countNodes(arg), 0)
 }
