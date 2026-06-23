@@ -96,7 +96,7 @@
           @focus="focusedIndex = index"
         />
         <button
-          v-if="simplifiedForms[index]"
+          v-if="simplifiedForms[index] && !inputErrors[index]"
           @click="applySimplification(index)"
           title="Simplify expression"
           class="text-white text-xs px-2 h-8 rounded-md flex-none bg-gray-500 hover:bg-gray-400 whitespace-nowrap"
