@@ -1,18 +1,24 @@
 import type { MathJsonExpression } from '@cortex-js/compute-engine'
 import { setParser } from '../expressionParser'
+import { RESERVED_LABELS } from '../constants'
+
+const RESERVED = new Set<string>(RESERVED_LABELS)
 
 export function extractVariables(node: MathJsonExpression): string[] {
-  if (typeof node === 'string') return /^[A-Z]$/.test(node) ? [node] : []
+  if (typeof node === 'string') return /^[A-Z]$/.test(node) && !RESERVED.has(node) ? [node] : []
   if (!Array.isArray(node)) return []
   const [, ...args] = node as [string, ...MathJsonExpression[]]
   return [...new Set(args.flatMap(extractVariables))].sort()
 }
 
-// minterm i represents the atom where variable[j] is present iff bit j of i is set
+// minterm i represents the atom where variable[j] is present iff bit j of i is set.
+// Minterm 0 (no variables) is the complement region, represented as ['S'] so that
+// getSet('S') in the expression parser resolves it correctly.
 function buildPartition(variables: string[]): string[][] {
-  return Array.from({ length: 2 ** variables.length }, (_, i) =>
-    variables.filter((_, j) => (i >> j) & 1)
-  )
+  return Array.from({ length: 2 ** variables.length }, (_, i) => {
+    const atom = variables.filter((_, j) => (i >> j) & 1)
+    return atom.length === 0 ? ['S'] : atom
+  })
 }
 
 export function getTruthTable(node: MathJsonExpression, variables: string[]): number {
