@@ -10,7 +10,11 @@ const ALWAYS_ABSENT = new Set<string>(RESERVED_LABELS)
 
 const normalize = (s: string) => s.replace(/\s/g, '')
 
-function trySimplify(node: MathJsonExpression, variables: string[], originalLatex: string): string | null {
+export const trySimplify = (
+  node: MathJsonExpression,
+  variables: string[],
+  originalLatex: string
+): string | null => {
   const truthTable = getTruthTable(node, variables)
   const ones = getOneMinterms(truthTable, variables.length)
 
@@ -27,7 +31,10 @@ function trySimplify(node: MathJsonExpression, variables: string[], originalLate
   return result
 }
 
-function simplifyOnce(latex: string, definedSets?: string[]): string | null {
+export const simplifyOnce = (
+  latex: string, 
+  definedSets?: string[]
+): string | null => {
   const expr = parseMathJSON(latex)
   if (!expr) return null
 
@@ -55,7 +62,10 @@ function simplifyOnce(latex: string, definedSets?: string[]): string | null {
   return null
 }
 
-export function simplify(latex: string, definedSets?: string[]): string | null {
+export const simplify = (
+  latex: string, 
+  definedSets?: string[]
+): string | null => {
   let current = latex
   let result: string | null = null
 

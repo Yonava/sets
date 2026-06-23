@@ -5,22 +5,22 @@ export type DNFTerm = {
 
 type Implicant = { value: number; mask: number }
 
-function canCombine(a: Implicant, b: Implicant): boolean {
+const canCombine = (a: Implicant, b: Implicant): boolean => {
   if (a.mask !== b.mask) return false
   const diff = a.value ^ b.value
   return diff !== 0 && (diff & (diff - 1)) === 0
 }
 
-function combine(a: Implicant, b: Implicant): Implicant {
+const combine = (a: Implicant, b: Implicant): Implicant => {
   const diff = a.value ^ b.value
   return { value: a.value & b.value, mask: a.mask | diff }
 }
 
-function covers(imp: Implicant, minterm: number): boolean {
+const covers = (imp: Implicant, minterm: number): boolean => {
   return (minterm & ~imp.mask) === (imp.value & ~imp.mask)
 }
 
-function getPrimeImplicants(ones: number[]): Implicant[] {
+const getPrimeImplicants = (ones: number[]): Implicant[] => {
   const primes: Implicant[] = []
   let current: Implicant[] = ones.map(v => ({ value: v, mask: 0 }))
 
@@ -46,7 +46,7 @@ function getPrimeImplicants(ones: number[]): Implicant[] {
   return primes
 }
 
-function selectCover(primes: Implicant[], ones: number[]): Implicant[] {
+const selectCover = (primes: Implicant[], ones: number[]): Implicant[] => {
   const uncovered = new Set(ones)
   const selected: Implicant[] = []
   const selectedKeys = new Set<string>()
@@ -82,7 +82,7 @@ function selectCover(primes: Implicant[], ones: number[]): Implicant[] {
   return selected
 }
 
-function implicantToDNFTerm(imp: Implicant, variables: string[]): DNFTerm {
+const implicantToDNFTerm = (imp: Implicant, variables: string[]): DNFTerm => {
   const positive = new Set<string>()
   const negative = new Set<string>()
   for (let j = 0; j < variables.length; j++) {
@@ -93,7 +93,7 @@ function implicantToDNFTerm(imp: Implicant, variables: string[]): DNFTerm {
   return { positive, negative }
 }
 
-export function minimizeDNF(ones: number[], variables: string[]): DNFTerm[] {
+export const minimizeDNF = (ones: number[], variables: string[]): DNFTerm[] => {
   if (ones.length === 0) return []
   if (ones.length === 2 ** variables.length) {
     return [{ positive: new Set(), negative: new Set() }]
