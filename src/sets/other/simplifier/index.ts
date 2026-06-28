@@ -6,11 +6,11 @@ import { dnfToMathJson, mathJsonToLatex } from './dnf'
 import { RESERVED_LABELS } from '../constants'
 
 const MAX_VARIABLES = 8
-const ALWAYS_ABSENT = new Set<string>(RESERVED_LABELS)
+const RESERVED = new Set<string>(RESERVED_LABELS)
 
 const normalize = (s: string) => s.replace(/\s/g, '')
 
-export const trySimplify = (
+const trySimplify = (
   node: MathJsonExpression,
   variables: string[],
   originalLatex: string
@@ -31,35 +31,29 @@ export const trySimplify = (
   return result
 }
 
-export const simplifyOnce = (
-  latex: string, 
+const simplifyOnce = (
+  latex: string,
   definedSets?: string[]
 ): string | null => {
   const expr = parseMathJSON(latex)
   if (!expr) return null
 
   const node = expr.json as MathJsonExpression
-  const allVariables = extractVariables(node)
 
-  if (allVariables.length === 0 || allVariables.length > MAX_VARIABLES) return null
+  // Build the variable list from the canvas circles (all non-reserved defined sets).
+  // This is critical for correctness: S means "everything outside all circles", so
+  // S^c means "everything inside at least one circle". Evaluating either correctly
+  // requires the full set of circles to be in the partition — not just the circles
+  // mentioned in the expression. Off-canvas variables in the expression evaluate as
+  // ∅ automatically since no partition atom contains them.
+  const canvasVars = definedSets?.filter(v => !RESERVED.has(v)).sort()
+  const variables = (canvasVars && canvasVars.length > 0)
+    ? canvasVars
+    : extractVariables(node)
 
-  // Pass 1: algebraic simplification — all variables treated as potentially non-empty
-  const algebraic = trySimplify(node, allVariables, latex)
-  if (algebraic) return algebraic
+  if (variables.length === 0 || variables.length > MAX_VARIABLES) return null
 
-  // Pass 2: context simplification — S is always absent (never a circle), and any variable
-  // not on the canvas is also treated as empty when canvas circles are defined.
-  const contextVars = allVariables.filter(v => {
-    if (ALWAYS_ABSENT.has(v)) return false
-    if (definedSets && definedSets.length > 0) return definedSets.includes(v)
-    return true
-  })
-
-  if (contextVars.length > 0 && contextVars.length < allVariables.length) {
-    return trySimplify(node, contextVars, latex)
-  }
-
-  return null
+  return trySimplify(node, variables, latex)
 }
 
 export const simplify = (
