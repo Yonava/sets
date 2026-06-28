@@ -1,6 +1,27 @@
 import type { MathJsonExpression } from '@cortex-js/compute-engine'
 import type { DNFTerm } from './quine-mccluskey'
-import { LATEX_SET_SYMBOLS as S } from '../constants'
+import { LATEX_SET_SYMBOLS } from '../constants'
+
+const union = (...args: MathJsonExpression[]): MathJsonExpression =>
+  [LATEX_SET_SYMBOLS.UNION, ...args]
+
+const intersection = (...args: MathJsonExpression[]): MathJsonExpression =>
+  [LATEX_SET_SYMBOLS.INTERSECTION, ...args]
+
+const complement = (arg: MathJsonExpression): MathJsonExpression =>
+  [LATEX_SET_SYMBOLS.COMPLEMENT, arg]
+
+const difference = (
+  a: MathJsonExpression,
+  b: MathJsonExpression,
+): MathJsonExpression =>
+  [LATEX_SET_SYMBOLS.SET_MINUS, a, b]
+
+const symmetricDifference = (
+  a: MathJsonExpression,
+  b: MathJsonExpression,
+): MathJsonExpression =>
+  [LATEX_SET_SYMBOLS.SYMMETRIC_DIFFERENCE, a, b]
 
 const setsEqual = (a: Set<string>, b: Set<string>): boolean => {
   if (a.size !== b.size) return false
@@ -30,7 +51,7 @@ const matchSymmetricDiff = (
     const [a] = t1.positive
     const [b] = t1.negative
 
-    return [S.SYMMETRIC_DIFFERENCE, a, b]
+    return symmetricDifference(a, b)
   }
 
   return null
@@ -61,7 +82,7 @@ const matchComplementSymmetricDiff = (
 
   const [a, b] = [...posTerm.positive]
 
-  return [S.COMPLEMENT, [S.SYMMETRIC_DIFFERENCE, a, b]]
+  return complement(symmetricDifference(a, b))
 }
 
 const termToMathJson = (term: DNFTerm): MathJsonExpression => {
@@ -72,23 +93,23 @@ const termToMathJson = (term: DNFTerm): MathJsonExpression => {
     const [a] = positive
     const [b] = negative
 
-    return [S.SET_MINUS, a, b]
+    return difference(a, b)
   }
 
   // (A ∪ B ∪ ...)^c
   if (positive.size === 0 && negative.size > 0) {
-    return [S.COMPLEMENT, foldBinary(S.UNION, [...negative])]
+    return complement(foldBinary(LATEX_SET_SYMBOLS.UNION, [...negative]))
   }
 
   // General intersection of literals
   const literals: MathJsonExpression[] = [
     ...positive,
     ...[...negative].map(
-      v => [S.COMPLEMENT, v] as MathJsonExpression,
+      v => complement(v),
     ),
   ]
 
-  return foldBinary(S.INTERSECTION, literals)
+  return foldBinary(LATEX_SET_SYMBOLS.INTERSECTION, literals)
 }
 
 export const dnfToMathJson = (
@@ -100,8 +121,17 @@ export const dnfToMathJson = (
   const compSymDiff = matchComplementSymmetricDiff(terms)
   if (compSymDiff) return compSymDiff
 
-  return foldBinary(S.UNION, terms.map(termToMathJson))
+  return foldBinary(LATEX_SET_SYMBOLS.UNION, terms.map(termToMathJson))
 }
+
+type FunctionExpression = [string, ...MathJsonExpression[]]
+
+const isFunctionExpression = (
+  expr: MathJsonExpression,
+): expr is FunctionExpression =>
+  Array.isArray(expr) &&
+  expr.length > 0 &&
+  typeof expr[0] === 'string'
 
 export const mathJsonToLatex = (
   node: MathJsonExpression,
@@ -109,15 +139,18 @@ export const mathJsonToLatex = (
   if (typeof node === 'string') return node
   if (!Array.isArray(node)) return ''
 
-  const [head, ...args] = node as [string, ...MathJsonExpression[]]
+  if (!isFunctionExpression(node)) return ''
 
-  const ASSOCIATIVE = [S.UNION, S.INTERSECTION]
+  const [head, ...args] = node
+
+  const ASSOCIATIVE = [LATEX_SET_SYMBOLS.UNION, LATEX_SET_SYMBOLS.INTERSECTION]
 
   const wrap = (child: MathJsonExpression): string => {
     if (typeof child === 'string') return child
     if (!Array.isArray(child)) return ''
 
-    const childHead = child[0] as string
+    if (!isFunctionExpression(child)) return ''
+    const childHead = child[0]
 
     // Same associative operator — A ∪ (B ∪ C) → A ∪ B ∪ C
     if (childHead === head && ASSOCIATIVE.includes(head)) {
@@ -126,25 +159,25 @@ export const mathJsonToLatex = (
 
     const inner = mathJsonToLatex(child)
 
-    return childHead !== S.COMPLEMENT
+    return childHead !== LATEX_SET_SYMBOLS.COMPLEMENT
       ? `\\left(${inner}\\right)`
       : inner
   }
 
   switch (head) {
-    case S.UNION:
+    case LATEX_SET_SYMBOLS.UNION:
       return `${wrap(args[0])} \\cup ${wrap(args[1])}`
 
-    case S.INTERSECTION:
+    case LATEX_SET_SYMBOLS.INTERSECTION:
       return `${wrap(args[0])} \\cap ${wrap(args[1])}`
 
-    case S.SET_MINUS:
+    case LATEX_SET_SYMBOLS.SET_MINUS:
       return `${wrap(args[0])} \\setminus ${wrap(args[1])}`
 
-    case S.SYMMETRIC_DIFFERENCE:
+    case LATEX_SET_SYMBOLS.SYMMETRIC_DIFFERENCE:
       return `${wrap(args[0])} \\triangle ${wrap(args[1])}`
 
-    case S.COMPLEMENT:
+    case LATEX_SET_SYMBOLS.COMPLEMENT:
       return `${wrap(args[0])}^{\\complement}`
 
     default:
