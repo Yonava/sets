@@ -7,8 +7,22 @@ import { RESERVED_LABELS } from '../constants'
 
 const MAX_VARIABLES = 8
 const RESERVED = new Set<string>(RESERVED_LABELS)
+const OPERATOR_WEIGHTS = {
+  '\\cup': 1,
+  '\\cap': 1,
+  '^{\\complement}': 1,
+  '\\setminus': 2,
+  '\\triangle': 3,
+} as const
 
 const normalize = (s: string) => s.replace(/\s/g, '')
+
+const countOperatorWeight = (latex: string): number => {
+  const s = normalize(latex)
+  return Object.entries(OPERATOR_WEIGHTS).reduce((total, [op, weight]) => (
+    total + (s.split(op).length - 1) * weight
+  ), 0)
+}
 
 const trySimplify = (
   node: MathJsonExpression,
@@ -64,9 +78,7 @@ export const simplify = (
     current = next
   }
 
-  // had some issues with it generating "simpler" expressions that were actually longer than the original
-  // so this is a temporary fix
-  if (result && normalize(result).length > normalize(latex).length) return null
+  if (result && countOperatorWeight(result) > countOperatorWeight(latex)) return null
 
   return result
 }
