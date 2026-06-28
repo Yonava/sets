@@ -64,5 +64,9 @@ export const simplify = (
     current = next
   }
 
+  // had some issues with it generating "simpler" expressions that were actually longer than the original
+  // so this is a temporary fix
+  if (result && normalize(result).length > normalize(latex).length) return null
+
   return result
 }
