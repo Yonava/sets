@@ -38,14 +38,8 @@ const simplifyOnce = (
   const expr = parseMathJSON(latex)
   if (!expr) return null
 
-  const node = expr.json as MathJsonExpression
+  const node = expr.json 
 
-  // Build the variable list from the canvas circles (all non-reserved defined sets).
-  // This is critical for correctness: S means "everything outside all circles", so
-  // S^c means "everything inside at least one circle". Evaluating either correctly
-  // requires the full set of circles to be in the partition — not just the circles
-  // mentioned in the expression. Off-canvas variables in the expression evaluate as
-  // ∅ automatically since no partition atom contains them.
   const canvasVars = definedSets?.filter(v => !RESERVED.has(v)).sort()
   const variables = (canvasVars && canvasVars.length > 0)
     ? canvasVars

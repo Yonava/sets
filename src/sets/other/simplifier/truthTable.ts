@@ -11,9 +11,7 @@ export const extractVariables = (node: MathJsonExpression): string[] => {
 
   if (!Array.isArray(node)) return []
 
-  const [, ...args] = node as [string, ...MathJsonExpression[]]
-
-  return [...new Set(args.flatMap(extractVariables))].sort()
+  return [...new Set(node.slice(1).flatMap(extractVariables))].sort()
 }
 
 // minterm i represents the atom where variable[j] is present iff bit j of i is set.
