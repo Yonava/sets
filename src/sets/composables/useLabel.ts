@@ -1,9 +1,8 @@
 import type { Circle } from '@/sets/types/types';
 import type { Ref } from 'vue';
-import { ALPHABET } from '../other/constants';
+import { ALPHABET, RESERVED_LABELS } from '../other/constants';
 
-const RESERVED = ['S'] // for now S is reserved because there is no way to select it in the text box, it always selects the sample space
-const LETTERS = ALPHABET.filter((l) => !RESERVED.includes(l));
+const LETTERS = ALPHABET.filter((l) => !(RESERVED_LABELS as readonly string[]).includes(l));
 
 /**
  * takes a list of labelled items and a sequence of labels and returns a function that will

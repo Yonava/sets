@@ -14,6 +14,10 @@ export const COLORS = {
 
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+// Labels that are reserved for structural use and cannot be used as circle names.
+// S is the complement region (everything outside all defined circles).
+export const RESERVED_LABELS = ['S'] as const
+
 export const KEY_TO_LATEX = {
     I: "\\cap",
     U: "\\cup",

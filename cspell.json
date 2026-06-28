@@ -4,6 +4,11 @@
         "MathfieldElement",
         "katex",
         "setminus",
+        "implicant",
+        "implicants",
+        "minterm",
+        "minterms",
+        "quine-mccluskey",
     ]
     
 }

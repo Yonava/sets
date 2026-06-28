@@ -16,7 +16,13 @@ const insertIntoLatexString = (latex: string) => {
   latexInput.value.executeCommand(["insert", latex]);
 };
 
-defineExpose({ insertIntoLatexString })
+const replaceLatexString = (latex: string) => {
+  if (!latexInput.value) return;
+  latexInput.value.value = latex;
+  latexString.value = latex;
+};
+
+defineExpose({ insertIntoLatexString, replaceLatexString })
 
 const latexInput = ref<MathfieldElement | null>(null);
 
