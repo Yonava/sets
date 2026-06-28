@@ -41,7 +41,7 @@
     return latexInputStrings.value.map(({ value }) => {
       if (!value.trim()) return false;
       const mathJSON = parseMathJSON(value);
-      if (!mathJSON) return true;
+      if (!mathJSON || !mathJSON.isValid) return true;
       if (parse(mathJSON.json) === null) return true;
       if (definedSets.value.length > 0) {
         const vars = extractVariables(mathJSON.json);
