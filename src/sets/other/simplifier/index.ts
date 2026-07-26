@@ -78,7 +78,7 @@ export const simplify = (
     current = next
   }
 
-  if (result && countOperatorWeight(result) > countOperatorWeight(latex)) return null
+  if (!result || countOperatorWeight(result) >= countOperatorWeight(latex)) return null
 
   return result
 }
