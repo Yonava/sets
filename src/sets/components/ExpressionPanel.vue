@@ -8,6 +8,8 @@
   import { KEY_TO_LATEX, ADDITIONAL_KEY_BINDINGS, COLORS } from "../other/constants";
   import { simplify } from "../other/simplifier";
   import { extractVariables } from "../other/simplifier/truthTable";
+  import { isAmbiguous, getDisambiguatedLatex } from "../other/disambiguate";
+  // import LatexDisplay from "./LatexDisplay.vue";
 
   const props = defineProps<{
     allSections: CircleLabel[][];
@@ -55,6 +57,13 @@
     latexInputStrings.value.map(({ value }) => simplify(value, definedSets.value))
   );
 
+  const disambiguatedForms = computed(() =>
+    latexInputStrings.value.map(({ value }, index) => {
+      if (!value.trim() || inputErrors.value[index] || !isAmbiguous(value)) return null;
+      return getDisambiguatedLatex(value);
+    })
+  );
+
   const applySimplification = (index: number) => {
     const simplified = simplifiedForms.value[index];
     if (!simplified) return;
@@ -73,6 +82,8 @@
     }
     return results;
   });
+
+  
 
   watch(activeSubsets, (val) => emit("update:activeSubsets", val), { immediate: true });
 </script>
@@ -95,6 +106,14 @@
           :class="['flex-1 rounded-md min-w-0', inputErrors[index] ? 'bg-red-50 ring-2 ring-red-400' : 'bg-white']"
           @focus="focusedIndex = index"
         />
+        <span
+          v-if="disambiguatedForms[index]"
+          :title="`Ambiguous order of operations. Parsed as: ${disambiguatedForms[index]}`"
+          class="flex-none w-8 h-8 rounded-md bg-gray-500 text-white flex items-center justify-center cursor-help select-none"
+        >&#9432;</span>
+        <!-- TODO: fix when we have tooltips from main repo -->
+        <!-- <LatexDisplay :latex="disambiguatedForms[index]!" /> -->
+
         <button
           v-if="simplifiedForms[index] && !inputErrors[index]"
           @click="applySimplification(index)"
