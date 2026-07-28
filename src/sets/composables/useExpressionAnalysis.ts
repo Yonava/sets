@@ -28,13 +28,9 @@ export const useExpressionAnalysis = (
     const mathJSON = parseMathJSON(value);
     if (!mathJSON?.isValid) return true;
     if (parse(mathJSON.json) === null) return true;
-
-    if (
-      definedSets.length &&
+    if (definedSets.length &&
       extractVariables(mathJSON.json).some(v => !definedSets.includes(v))
-    ) {
-      return true;
-    }
+    ) return true;
 
     return false;
   };

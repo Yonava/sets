@@ -31,8 +31,12 @@
     focusedIndex.value = latexInputStrings.value.length - 1;
   };
 
-  const { inputErrors, simplifiedForms, disambiguatedForms, activeSubsets } =
-    useExpressionAnalysis(latexInputStrings, toRef(props, "allSections"));
+  const { 
+    inputErrors, 
+    simplifiedForms, 
+    disambiguatedForms, 
+    activeSubsets 
+  } = useExpressionAnalysis(latexInputStrings, toRef(props, "allSections"));
 
   watch(activeSubsets, (val) => emit("update:activeSubsets", val), { immediate: true });
 </script>
