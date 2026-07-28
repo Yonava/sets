@@ -17,10 +17,6 @@ const OPERATOR_WEIGHTS = {
 
 const normalize = (s: string) => s.replace(/\s/g, '')
 
-// A^{cc} -> A. Purely syntactic and always valid, so it runs as a
-// normalization pass before the truth-table-based simplifier, which can
-// otherwise "simplify" a double complement away into an unrelated (and not
-// actually simpler) DNF form.
 const stripDoubleComplement = (node: MathJsonExpression): MathJsonExpression => {
   if (!Array.isArray(node)) return node
 
