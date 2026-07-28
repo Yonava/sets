@@ -3,7 +3,7 @@ import { parseMathJSON } from '../parseMathJSON'
 import { extractVariables, getTruthTable, getOneMinterms } from './truthTable'
 import { minimizeDNF } from './quine-mccluskey'
 import { dnfToMathJson, mathJsonToLatex } from './dnf'
-import { RESERVED_LABELS } from '../constants'
+import { RESERVED_LABELS, LATEX_SET_SYMBOLS } from '../constants'
 
 const MAX_VARIABLES = 8
 const RESERVED = new Set<string>(RESERVED_LABELS)
@@ -16,6 +16,26 @@ const OPERATOR_WEIGHTS = {
 } as const
 
 const normalize = (s: string) => s.replace(/\s/g, '')
+
+// A^{cc} -> A. Purely syntactic and always valid, so it runs as a
+// normalization pass before the truth-table-based simplifier, which can
+// otherwise "simplify" a double complement away into an unrelated (and not
+// actually simpler) DNF form.
+const stripDoubleComplement = (node: MathJsonExpression): MathJsonExpression => {
+  if (!Array.isArray(node)) return node
+
+  const [head, ...args] = node
+
+  if (
+    head === LATEX_SET_SYMBOLS.COMPLEMENT &&
+    Array.isArray(args[0]) &&
+    args[0][0] === LATEX_SET_SYMBOLS.COMPLEMENT
+  ) {
+    return stripDoubleComplement(args[0][1] as MathJsonExpression)
+  }
+
+  return [head, ...args.map(stripDoubleComplement)] as MathJsonExpression
+}
 
 const countOperatorWeight = (latex: string): number => {
   const s = normalize(latex)
@@ -64,21 +84,35 @@ const simplifyOnce = (
   return trySimplify(node, variables, latex)
 }
 
+const MAX_SIMPLIFICATION_ITERATIONS = 10
+
 export const simplify = (
-  latex: string, 
+  latex: string,
   definedSets?: string[]
 ): string | null => {
-  let current = latex
-  let result: string | null = null
+  const expr = parseMathJSON(latex)
+  const stripped = expr ? mathJsonToLatex(stripDoubleComplement(expr.json)) : null
+  const baseLatex = stripped && normalize(stripped) !== normalize(latex) ? stripped : latex
 
-  for (let i = 0; i < 10; i++) {
+  const originalWeight = countOperatorWeight(latex)
+
+  let current = baseLatex
+  let best: string | null = baseLatex !== latex ? baseLatex : null
+  let bestWeight = best ? countOperatorWeight(best) : originalWeight
+
+  for (let i = 0; i < MAX_SIMPLIFICATION_ITERATIONS; i++) {
     const next = simplifyOnce(current, definedSets)
     if (!next) break
-    result = next
     current = next
+
+    const weight = countOperatorWeight(next)
+    if (weight < bestWeight) {
+      best = next
+      bestWeight = weight
+    }
   }
 
-  if (!result || countOperatorWeight(result) >= countOperatorWeight(latex)) return null
+  if (!best || bestWeight >= originalWeight) return null
 
-  return result
+  return best
 }
