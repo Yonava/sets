@@ -4,16 +4,16 @@
   import "katex/dist/katex.min.css";
 
   const props = defineProps<{
-  latex: string;
+    latex: string;
   }>();
 
   const el = ref<HTMLElement | null>(null);
 
   const renderMath = () => {
-  if (!el.value) return;
-  katex.render(props.latex, el.value, {
-      throwOnError: false,
-  });
+    if (!el.value) return;
+    katex.render(props.latex, el.value, {
+        throwOnError: false,
+    });
   };
 
   onMounted(renderMath);
