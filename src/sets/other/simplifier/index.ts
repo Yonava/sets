@@ -6,6 +6,7 @@ import { dnfToMathJson, mathJsonToLatex } from './dnf'
 import { RESERVED_LABELS, LATEX_SET_SYMBOLS } from '../constants'
 
 const MAX_VARIABLES = 8
+const MAX_SIMPLIFICATION_ITERATIONS = 10
 const RESERVED = new Set<string>(RESERVED_LABELS)
 const OPERATOR_WEIGHTS = {
   '\\cup': 1,
@@ -79,8 +80,6 @@ const simplifyOnce = (
 
   return trySimplify(node, variables, latex)
 }
-
-const MAX_SIMPLIFICATION_ITERATIONS = 10
 
 export const simplify = (
   latex: string,
