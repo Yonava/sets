@@ -49,11 +49,20 @@ type ColorOverlappingAreasProps = {
   highlightedOverlaps: Map<Overlap['id'], string[]>,
 }
 
+const subsetToString = (labels: Circle['label'][]): string =>
+  labels.toSorted((a, b) => a.localeCompare(b)).join('.')
+
 const getProperNonEmptySubsets = (labels: Circle['label'][]): Circle['label'][][] => {
   const subsets: Circle['label'][][] = []
-  for (let mask = 1; mask < (2 ** labels.length) - 1; mask++) {
-    subsets.push(labels.filter((_, i) => mask & (1 << i)))
+  const fullSetMask = 2 ** labels.length - 1
+
+  // Each mask from 1 to fullSetMask - 1 represents one proper, non-empty subset,
+  // where bit i indicates whether labels[i] is included.
+  for (let mask = 1; mask < fullSetMask; mask++) {
+    const subset = labels.filter((_, i) => mask & (1 << i))
+    subsets.push(subset)
   }
+
   return subsets
 }
 
@@ -65,8 +74,8 @@ export const colorOverlappingAreas = (
 
   const overlapIdByKey = new Map<string, Overlap['id']>()
   for (const overlap of overlaps) {
-    const key = overlap.circles.toSorted((a, b) => a.localeCompare(b)).join('.')
-    overlapIdByKey.set(key, overlap.id)
+    const stringifiedSubset = subsetToString(overlap.circles)
+    overlapIdByKey.set(stringifiedSubset, overlap.id)
   }
 
   // an overlap region is geometrically nested inside every region formed by a
@@ -79,8 +88,8 @@ export const colorOverlappingAreas = (
         if (highlightedCircles.has(subset[0])) return true
         continue
       }
-      const key = subset.toSorted((a, b) => a.localeCompare(b)).join('.')
-      const id = overlapIdByKey.get(key)
+      const stringifiedSubset = subsetToString(subset)
+      const id = overlapIdByKey.get(stringifiedSubset)
       if (id !== undefined && highlightedOverlaps.has(id)) return true
     }
     return false
