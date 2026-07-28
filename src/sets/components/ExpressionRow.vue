@@ -37,7 +37,7 @@ const applySimplification = () => {
   latexInputRef.value?.replaceLatexString(props.simplified);
 };
 
-const applyDisambiguated = () => {
+const applyDisambiguation = () => {
   if (!props.disambiguated) return;
 
   emit("update:modelValue", props.disambiguated);
@@ -58,7 +58,7 @@ const applyDisambiguated = () => {
       v-if="disambiguated && !error"
       :title="`Ambiguous order of operations. Parsed as: ${disambiguated}`"
       class="flex-none w-8 h-8 rounded-md bg-gray-500 text-white flex items-center justify-center select-none"
-      @click="applyDisambiguated"
+      @click="applyDisambiguation"
     >&#9432;</button>
 
     <button
