@@ -16,7 +16,7 @@ const OPERATOR_WEIGHTS = {
   '\\triangle': 3,
 } as const
 
-const normalize = (s: string) => s.replace(/\s/g, '')
+const stripWhitespace = (s: string) => s.replace(/\s/g, '')
 
 const stripDoubleComplement = (node: MathJsonExpression): MathJsonExpression => {
   if (!Array.isArray(node)) return node
@@ -35,9 +35,9 @@ const stripDoubleComplement = (node: MathJsonExpression): MathJsonExpression => 
 }
 
 const countOperatorWeight = (latex: string): number => {
-  const s = normalize(latex)
-  return Object.entries(OPERATOR_WEIGHTS).reduce((total, [op, weight]) => (
-    total + (s.split(op).length - 1) * weight
+  const strippedLatex = stripWhitespace(latex)
+  return Object.entries(OPERATOR_WEIGHTS).reduce((total, [operator, weight]) => (
+    total + (strippedLatex.split(operator).length - 1) * weight
   ), 0)
 }
 
@@ -47,17 +47,17 @@ const trySimplify = (
   originalLatex: string
 ): string | null => {
   const truthTable = getTruthTable(node, variables)
-  const ones = getOneMinterms(truthTable, variables.length)
+  const oneMinterms = getOneMinterms(truthTable, variables.length)
 
-  if (ones.length === 0 || ones.length === 2 ** variables.length) return null
+  if (oneMinterms.length === 0 || oneMinterms.length === 2 ** variables.length) return null
 
-  const terms = minimizeDNF(ones, variables)
+  const terms = minimizeDNF(oneMinterms, variables)
   const simplified = dnfToMathJson(terms)
 
   if (getTruthTable(simplified, variables) !== truthTable) return null
 
   const result = mathJsonToLatex(simplified)
-  if (normalize(result) === normalize(originalLatex)) return null
+  if (stripWhitespace(result) === stripWhitespace(originalLatex)) return null
 
   return result
 }
@@ -66,10 +66,10 @@ const simplifyOnce = (
   latex: string,
   definedSets?: string[]
 ): string | null => {
-  const expr = parseMathJSON(latex)
-  if (!expr) return null
+  const expression = parseMathJSON(latex)
+  if (!expression) return null
 
-  const node = expr.json 
+  const node = expression.json 
 
   const canvasVars = definedSets?.filter(v => !RESERVED.has(v)).sort()
   const variables = (canvasVars && canvasVars.length > 0)
@@ -85,9 +85,9 @@ export const simplify = (
   latex: string,
   definedSets?: string[]
 ): string | null => {
-  const expr = parseMathJSON(latex)
-  const stripped = expr ? mathJsonToLatex(stripDoubleComplement(expr.json)) : null
-  const baseLatex = stripped && normalize(stripped) !== normalize(latex) ? stripped : latex
+  const expression = parseMathJSON(latex)
+  const stripped = expression ? mathJsonToLatex(stripDoubleComplement(expression.json)) : null
+  const baseLatex = stripped && stripWhitespace(stripped) !== stripWhitespace(latex) ? stripped : latex
 
   const originalWeight = countOperatorWeight(latex)
 

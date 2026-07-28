@@ -16,8 +16,8 @@ const combine = (a: Implicant, b: Implicant): Implicant => {
   return { value: a.value & b.value, mask: a.mask | diff }
 }
 
-const covers = (imp: Implicant, minterm: number): boolean => {
-  return (minterm & ~imp.mask) === (imp.value & ~imp.mask)
+const covers = (implicant: Implicant, minterm: number): boolean => {
+  return (minterm & ~implicant.mask) === (implicant.value & ~implicant.mask)
 }
 
 const getPrimeImplicants = (ones: number[]): Implicant[] => {
@@ -39,7 +39,7 @@ const getPrimeImplicants = (ones: number[]): Implicant[] => {
       }
     }
 
-    current.forEach((imp, i) => { if (!used.has(i)) primes.push(imp) })
+    current.forEach((implicant, i) => { if (!used.has(i)) primes.push(implicant) })
     current = [...nextMap.values()]
   }
 
@@ -51,29 +51,29 @@ const selectCover = (primes: Implicant[], ones: number[]): Implicant[] => {
   const selected: Implicant[] = []
   const selectedKeys = new Set<string>()
 
-  const key = (imp: Implicant) => `${imp.value},${imp.mask}`
+  const key = (implicant: Implicant) => `${implicant.value},${implicant.mask}`
 
-  const add = (imp: Implicant) => {
-    if (selectedKeys.has(key(imp))) return
-    selectedKeys.add(key(imp))
-    selected.push(imp)
-    for (const m of ones) { if (covers(imp, m)) uncovered.delete(m) }
+  const add = (implicant: Implicant) => {
+    if (selectedKeys.has(key(implicant))) return
+    selectedKeys.add(key(implicant))
+    selected.push(implicant)
+    for (const minterm of ones) { if (covers(implicant, minterm)) uncovered.delete(minterm) }
   }
 
-  // Essential prime implicants: minterms covered by exactly one prime
-  for (const m of ones) {
-    const covering = primes.filter(p => covers(p, m))
+  // essential prime implicants: minterms covered by exactly one prime
+  for (const minterm of ones) {
+    const covering = primes.filter(p => covers(p, minterm))
     if (covering.length === 1) add(covering[0])
   }
 
-  // Greedy cover for any remaining uncovered minterms
+  // greedy cover for any remaining uncovered minterms
   while (uncovered.size > 0) {
     let best: Implicant | null = null
     let bestCount = 0
-    for (const p of primes) {
-      if (selectedKeys.has(key(p))) continue
-      const count = [...uncovered].filter(m => covers(p, m)).length
-      if (count > bestCount) { bestCount = count; best = p }
+    for (const prime of primes) {
+      if (selectedKeys.has(key(prime))) continue
+      const count = [...uncovered].filter(minterm => covers(prime, minterm)).length
+      if (count > bestCount) { bestCount = count; best = prime }
     }
     if (!best) break
     add(best)
@@ -82,13 +82,13 @@ const selectCover = (primes: Implicant[], ones: number[]): Implicant[] => {
   return selected
 }
 
-const implicantToDNFTerm = (imp: Implicant, variables: string[]): DNFTerm => {
+const implicantToDNFTerm = (implicant: Implicant, variables: string[]): DNFTerm => {
   const positive = new Set<string>()
   const negative = new Set<string>()
-  for (let j = 0; j < variables.length; j++) {
-    if ((imp.mask >> j) & 1) continue
-    if ((imp.value >> j) & 1) positive.add(variables[j])
-    else negative.add(variables[j])
+  for (let i = 0; i < variables.length; i++) {
+    if ((implicant.mask >> i) & 1) continue
+    if ((implicant.value >> i) & 1) positive.add(variables[i])
+    else negative.add(variables[i])
   }
   return { positive, negative }
 }
@@ -100,5 +100,5 @@ export const minimizeDNF = (ones: number[], variables: string[]): DNFTerm[] => {
   }
   const primes = getPrimeImplicants(ones)
   const cover = selectCover(primes, ones)
-  return cover.map(imp => implicantToDNFTerm(imp, variables))
+  return cover.map(implicant => implicantToDNFTerm(implicant, variables))
 }
