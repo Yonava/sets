@@ -57,10 +57,12 @@ export const useExpressionAnalysis = (
 
   const activeSubsets = computed(() => {
     const parse = setParser(allSections.value);
+    const sets = definedSets.value;
     const results: HighlightGroup[] = [];
 
     for (const [index, expression] of expressions.value.entries()) {
       if (expression.hidden) continue;
+      if (hasInputError(expression.value, parse, sets)) continue;
 
       const mathJSON = parseMathJSON(expression.value);
       if (!mathJSON) continue;
