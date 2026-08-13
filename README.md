@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This repository has been ABANDONED. But don't panic just yet, the Set Theory Visualizer project continues on [Graph Kit](https://github.com/graph-kit/graph-kit)!
+
 # set
 
 This template should help get you started developing with Vue 3 in Vite.
